@@ -21,7 +21,7 @@
     "debug": "nodemon -e ts,json --exec \"node --inspect --enable-source-maps --experimental-specifier-resolution=node --loader ts-node/esm ./util/debug.ts\""
   },
   "dependencies": {
-    "dualsense-ts": "*"
+    "dualsense-ts": "link:../dualsense-ts"
   },
   "devDependencies": {
     "@types/jest": "^27.5.0",
