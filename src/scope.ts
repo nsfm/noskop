@@ -1,8 +1,26 @@
 import { SerialPort } from "serialport";
+import { DelimiterParser } from "@serialport/parser-delimiter";
+
+interface Command {
+  resolve: (cmd: Command) => void;
+  reject: (reason: string) => void;
+  command: string;
+  requested: number;
+  send?: number;
+  sent?: number;
+  completed?: number;
+}
 
 export class Scope {
-  private port: SerialPort;
   public feedrate: number = 1000;
+
+  protected commandQueue: Command[] = [];
+  protected pendingCommand: Command | null = null;
+
+  protected steppersEnabled: boolean = false;
+
+  private port: SerialPort;
+  private parser: DelimiterParser;
 
   constructor() {
     this.port = new SerialPort({
@@ -11,11 +29,43 @@ export class Scope {
       baudRate: 115200,
     });
 
-    this.port.on("data", (data: Buffer) => this.process(data));
+    this.parser = this.port.pipe(new DelimiterParser({ delimiter: "\n" }));
+
+    this.parser.on("data", (data: Buffer) => this.process(data));
+
+    this.setTravelUnit();
+    this.setTemperatureInterval(10);
+    this.setPositionInterval(1);
+    this.setStepsPerUnit("X", 30);
+    this.setStepsPerUnit("Y", 30);
+    this.setStepsPerUnit("Z", 30);
+  }
+
+  cmd(command: string, priority: boolean = false): Promise<Command> {
+    return new Promise((resolve, reject) => {
+      const cmd: Command = {
+        command,
+        resolve,
+        reject,
+        requested: Date.now(),
+      };
+      priority ? this.commandQueue.unshift(cmd) : this.commandQueue.push(cmd);
+    });
+  }
+
+  transmit(): void {
+    if (this.pendingCommand) return;
+
+    this.pendingCommand = this.commandQueue.shift() || null;
+    if (this.pendingCommand) {
+      this.pendingCommand.send = Date.now();
+      this.port.write(this.pendingCommand.command);
+      this.pendingCommand.sent = Date.now();
+    }
   }
 
   // Handle feedback from the device
-  process(data: Buffer): void {
+  process(line: Buffer): void {
     console.log(data);
   }
 
@@ -58,6 +108,7 @@ export class Scope {
 
   steppersOn(): this {
     this.port.write("M17\n");
+    this.steppersEnabled = true;
     return this;
   }
 
@@ -75,6 +126,7 @@ export class Scope {
   // Inactivity - seconds until automatic shutoff without movement
   steppersOff(inactivity?: number): this {
     this.port.write(`M18\n ${inactivity ? `S${inactivity}` : ""}`);
+    this.steppersEnabled = false;
     return this;
   }
 
@@ -137,6 +189,12 @@ export class Scope {
   // units-per-second
   setMaxFeedrate(axis: "X" | "Y" | "Z" | "E", feedrate: number): this {
     this.port.write(`M203 ${axis}${feedrate}\n`);
+    return this;
+  }
+
+  // Apply a global speed modifier. 0 - 0% to 1 - 100%
+  setFeedrate(percentage: number): this {
+    this.port.write(`M203 S${Math.round(percentage * 100)}\n`);
     return this;
   }
 
