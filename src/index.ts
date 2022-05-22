@@ -3,4 +3,5 @@
  */
 
 export * from "./main";
+export * from "./marlin";
 export * from "./scope";
