@@ -9,6 +9,7 @@ export class Scope extends Marlin {
     await this.setStepsPerUnit("X", 30);
     await this.setStepsPerUnit("Y", 30);
     await this.setStepsPerUnit("Z", 30);
+    await this.relativeMode();
   }
 
   async jingle(): Promise<void> {
