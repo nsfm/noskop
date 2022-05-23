@@ -97,13 +97,11 @@ export class Marlin {
     this.pendingCommand = this.commandQueue.shift() || null;
     if (this.pendingCommand) {
       this.pendingCommand.send = Date.now();
-      this.debug
-        ? this.log[this.pendingCommand.priority ? "warn" : "info"](
-            `${this.pendingCommand.description} -> ${this.pendingCommand.command}`
-          )
-        : this.port.write(this.pendingCommand.command);
+      this.log[this.pendingCommand.priority ? "warn" : "debug"](
+        `${this.pendingCommand.description} -> ${this.pendingCommand.command}`
+      );
+      if (!this.debug) this.port.write(`${this.pendingCommand.command}\n`);
       this.pendingCommand.sent = Date.now();
-
       if (this.debug) this.process(Buffer.from("ok"));
     }
   }
@@ -129,16 +127,38 @@ export class Marlin {
 
   // Handle feedback from the device
   process(line: Buffer): void {
+    const msg = line.toString().trim();
+    if (msg.includes("//")) {
+      this.log.debug(`[comment] <- ${msg}`);
+      return;
+    }
+
+    if (msg.startsWith("X")) {
+      return this.updatePosition(msg);
+    }
+
+    if (msg.startsWith("T")) {
+      return this.updateTemperature(msg);
+    }
+
     if (this.pendingCommand) {
-      this.log.info(`${this.pendingCommand.description} <- ${line.toString()}`);
+      this.log.info(`${this.pendingCommand.description} <- ${msg}`);
       this.pendingCommand.completed = Date.now();
       this.pendingCommand.response = line.toString();
       this.pendingCommand.success = line.toString() === "ok";
       this.pendingCommand.resolve(this.pendingCommand);
       this.pendingCommand = null;
     } else {
-      this.log.info(`[received] <- ${line.toString()}`);
+      this.log.info(`[received] <- ${msg}`);
     }
+  }
+
+  updatePosition(position: string): void {
+    this.log.trace(`[position] <- ${position}`);
+  }
+
+  updateTemperature(temperature: string): void {
+    this.log.trace(`[temperature] <- ${temperature}`);
   }
 
   linearMove({ x, y, z, e }: CoordinateSet): Promise<Command> {

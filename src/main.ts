@@ -1,4 +1,4 @@
-import { Dualsense, Dpad } from "dualsense-ts";
+import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
 import { CoordinateSet } from "./marlin";
@@ -10,7 +10,7 @@ class Noskop {
     name: "noskop",
   });
 
-  public scope: Scope = new Scope({ logger: this.log, debug: true });
+  public scope: Scope = new Scope({ logger: this.log, debug: false });
   public controller: Dualsense = new Dualsense();
 
   async setup(): Promise<void> {
