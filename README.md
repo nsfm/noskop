@@ -24,8 +24,7 @@ own device to this tool would be madness.**
 - Node.js v18
 - yarn package manager
 - Dualsense controller
-- CNC microscope of some sort
-  - BLTouch for homing
+- CNC microscope
 
 ```
 # git clone git@github.com:nsfm/noskop.git
@@ -59,9 +58,9 @@ via eBay:
   - Both axes use fine leadscrews with linear rails
   - Rotating specimen plate
 - Microscopes
-  - originally, _Zeiss Invertoskop ID-02_ (2002, New England Medical Center #11559)
-  - rip, _Olympus BH-B_ (1974 - 2022, unknown)
-  - currently, _Olympus BH-A_ (1974, University of Cincinnati #0195845)
+  - _originally_, Zeiss Invertoskop ID-02 (2002, New England Medical Center #11559)
+  - _rip_, Olympus BH-B (1974 - 2022, unknown)
+  - _currently_, Olympus BH-A (1974, University of Cincinnati #0195845)
 
 via Amazon:
 
@@ -69,6 +68,7 @@ via Amazon:
   - NEMA 17 stepper (1.8 degree step angle)
   - Synchronous belt
   - Sprocket bolted to fine focus adjust knob (10:1 reduction)
+  - Plenty of aluminum extrusion
   - BLTouch for homing
 - BigTreeTech Octopus Pro v1.0 3D printer motherboard (2021)
   - 8 stepper outputs (7 + Z mirror)
