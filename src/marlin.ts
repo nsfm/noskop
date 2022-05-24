@@ -269,11 +269,19 @@ export class Marlin {
   }
 
   // units-per-second
-  setMaxFeedrate(
+  setAxisFeedrate(
     axis: "X" | "Y" | "Z" | "E",
     feedrate: number
   ): Promise<Command> {
     return this.command("Max Feedrate", `M203 ${axis}${feedrate}`);
+  }
+
+  // units-per-second
+  setMaxFeedrate(feedrate: number): Promise<Command> {
+    return this.command(
+      "Max Feedrate",
+      `M203 X${feedrate} Y${feedrate} Z${feedrate} E${feedrate}`
+    );
   }
 
   // Apply a global speed modifier. 0 - 0% to 1 - 100%
@@ -290,16 +298,29 @@ export class Marlin {
   }
 
   // units-per-second-squared
-  setMaxAcceleration(
+  setAxisAcceleration(
     axis: "X" | "Y" | "Z" | "E",
     acceleration: number
   ): Promise<Command> {
     return this.command("Max Acceleration", `M201 ${axis}${acceleration}`);
   }
 
+  // units-per-second-squared
+  setMaxAcceleration(acceleration: number): Promise<Command> {
+    return this.command(
+      "Max Acceleration",
+      `M201 X${acceleration} Y${acceleration} Z${acceleration} E${acceleration}`
+    );
+  }
+
   // units-per-second
-  setMaxJerk(axis: "X" | "Y" | "Z" | "E", jerk: number): Promise<Command> {
-    return this.command("Max Jerk", `M205 ${axis}${jerk}`);
+  setAxisJerk(axis: "X" | "Y" | "Z" | "E", jerk: number): Promise<Command> {
+    return this.command(`${axis} Jerk`, `M205 ${axis}${jerk}`);
+  }
+
+  // units-per-second
+  setMaxJerk(jerk: number): Promise<Command> {
+    return this.command("Max Jerk", `M205 X${jerk} Y${jerk} Z${jerk} E${jerk}`);
   }
 
   babystep(axis: "X" | "Y" | "Z", distance: number): Promise<Command> {
@@ -327,6 +348,14 @@ export class Marlin {
 
   dwell(milliseconds: number): Promise<Command> {
     return this.command("Dwell", `G4 P${milliseconds}`);
+  }
+
+  finish(): Promise<Command> {
+    return this.command("Finish Up", "M400");
+  }
+
+  setInactivityShutdown(seconds: number): Promise<Command> {
+    return this.command("Set Auto-Shutdown", `M85 ${Math.floor(seconds)}`);
   }
 
   setLED(

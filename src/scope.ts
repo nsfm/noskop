@@ -2,14 +2,18 @@ import { Marlin } from "./marlin";
 
 export class Scope extends Marlin {
   async setup(): Promise<void> {
-    await this.jingle();
     await this.setTravelUnit();
-    await this.setTemperatureInterval(10);
-    await this.setPositionInterval(1);
-    await this.setStepsPerUnit("X", 30);
-    await this.setStepsPerUnit("Y", 30);
-    await this.setStepsPerUnit("Z", 30);
+    await this.setMinFeedrate(1);
+    await this.setMaxFeedrate(5);
+    await this.setMaxAcceleration(5);
+    await this.setMaxJerk(1);
+    await this.setTemperatureInterval(20);
+    await this.setPositionInterval(5);
+    await this.setStepsPerUnit("X", 50); // 1/8th turn
+    await this.setStepsPerUnit("Y", 50);
+    await this.setStepsPerUnit("Z", 50); // 1/4th turn
     await this.relativeMode();
+    await this.setInactivityShutdown(300);
   }
 
   async jingle(): Promise<void> {
@@ -20,10 +24,6 @@ export class Scope extends Marlin {
   }
 
   async shutdown(): Promise<void> {
-    await this.tone(400, 200);
-    await this.tone(100, 100);
-    await this.tone(200, 100);
-    await this.tone(400, 300);
     await this.disableSteppers();
     await this.stowProbe();
   }
