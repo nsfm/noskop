@@ -3,13 +3,29 @@ import Logger from "bunyan";
 
 import { Scope } from "./scope";
 
-export type Millimeters = number;
+type Millimeters = number;
+type Multiplier = number;
+type Hertz = number;
+type MillimetersPerSecond = number;
+
+export interface InvertParams {
+  x: boolean;
+  y: boolean;
+  z: boolean;
+  e: boolean;
+}
 
 class Noskop {
-  private moving: boolean = false;
-  private moveRate: number = 15; // times per second
-  private maxMove: Millimeters = 10; // largest allowed travel increment
-  private invert = {
+  // Frequency of movement evaluation
+  private moveRate: Hertz = 15;
+  // Max overall speed, even during boost
+  private maxSpeed: MillimetersPerSecond = 50;
+  // Maximum boost multiplier
+  private maxBoost: Multiplier = 20;
+  // Largest travel allowed in a single operation
+  private maxMove: Millimeters = this.maxSpeed / this.moveRate;
+  // Axes to invert control of
+  private invert: InvertParams = {
     x: false,
     y: true,
     z: false,
@@ -24,88 +40,111 @@ class Noskop {
   public scope: Scope = new Scope({
     logger: this.log,
     debug: false,
-    commandRate: 60,
+    commandRate: this.moveRate * 4,
   });
+
   public controller: Dualsense = new Dualsense();
 
   async setup(): Promise<void> {
     await this.scope.setup();
     this.bindControls();
     setInterval(() => {
+      console.time("checkMove");
       this.checkMove()
         .then(() => {
-          //
+          console.timeEnd("checkMove");
         })
         .catch((err) => {
+          console.timeEnd("checkMove");
           this.log.error(err);
         });
     }, 1000 / this.moveRate);
     this.log.info("Setup complete");
   }
 
-  get boost(): boolean {
-    return this.controller.circle.state;
+  // Returns 1 or -1 according to invert settings
+  private axisModifier(axis: keyof InvertParams): number {
+    return this.invert[axis] ? -1 : 1;
   }
 
+  // Returns a feedrate multiplier for movements
+  get boost(): number {
+    const {
+      circle,
+      square,
+      left: { trigger },
+    } = this.controller;
+    if (square.state) return Math.abs(trigger.state - 1);
+    if (circle.state) return trigger.state * this.maxBoost;
+    return 1;
+  }
+
+  private moving: boolean = false;
+  async travel(x: Millimeters, y: Millimeters): Promise<void> {
+    if (this.moving) return;
+
+    try {
+      this.moving = true;
+      const X = this.axisModifier("x") * Math.min(x * this.boost, this.maxMove);
+      const Y = this.axisModifier("y") * Math.min(y * this.boost, this.maxMove);
+      this.log.debug(`Travel: X${X} Y${Y}`);
+      const setMode = this.scope.relativeMode();
+      const move = this.scope.linearMove({ x: X, y: Y, z: 0, e: 0 });
+      await setMode;
+      await move;
+      await this.scope.finish();
+    } finally {
+      this.moving = false;
+    }
+  }
+
+  // Triggers movements using analog and dpad states
   async checkMove(): Promise<void> {
-    if (this.controller.left.analog.magnitude < 1) return;
     if (this.scope.busy()) return;
 
-    return this.moveStage(
-      this.controller.left.analog.x.state / 128,
-      this.controller.left.analog.y.state / 128
-    );
+    const { dpad } = this.controller;
+    if (dpad.active) {
+      return this.travel(
+        (dpad.left.state ? 1 : 0) + (dpad.right.state ? -1 : 0),
+        (dpad.up.state ? 1 : 0) + (dpad.down.state ? -1 : 0)
+      );
+    }
+
+    const { analog } = this.controller.left;
+    if (analog.active) {
+      return this.travel(analog.x.state, analog.y.state);
+    }
   }
 
-  async moveStage(x: Millimeters, y: Millimeters): Promise<void> {
-    if (this.moving) return;
-    this.log.debug(`Moving: X${x} Y${y}`);
-    this.moving = true;
-    const boost = this.boost ? 20 : 1;
-    const setMode = this.scope.relativeMode();
-    const move = this.scope.linearMove({
-      x: (this.invert.x ? -1 : 1) * Math.min(x, this.maxMove) * boost,
-      y: (this.invert.y ? -1 : 1) * Math.min(y, this.maxMove) * boost,
-      z: 0,
-      e: 0,
-    });
-    await setMode;
-    await move;
-    await this.scope.finish();
-    this.moving = false;
-  }
-
+  // Assigns other controller actions
   bindControls() {
-    this.controller.ps.on("change", async (input) => {
-      if (input.state === false) return;
-      await this.scope.shutdown();
+    const {
+      scope,
+      controller: { ps, triangle, circle, square, mute },
+    } = this;
+
+    ps.on("press", async () => {
+      await scope.shutdown();
       process.exit(0);
     });
 
-    this.controller.triangle.on("change", async (input) => {
-      if (input.state === false) return;
-      const res = await this.scope.getEndstopStates();
+    triangle.on("press", async () => {
+      const res = await scope.getEndstopStates();
       this.log.info(`Endstops: ${res.response || "err"}`);
     });
 
-    this.controller.mute.on("change", async (input) => {
-      if (input.state === false) return;
-      await this.scope.setSteppers(!this.scope.steppersEnabled);
+    mute.on("press", async () => {
+      await scope.setSteppers(!scope.steppersEnabled);
     });
 
-    this.controller.dpad.on("change", async (dpad, input) => {
-      if (!dpad.active || input.state === false) return;
+    circle.on("change", ({ state }) => {
+      if (!square.state) this.log.info(`Boost ${state ? "on" : "off"}`);
+    });
 
-      switch (input.id) {
-        case this.controller.dpad.up.id:
-          return this.moveStage(0, 1);
-        case this.controller.dpad.down.id:
-          return this.moveStage(0, -1);
-        case this.controller.dpad.left.id:
-          return this.moveStage(1, 0);
-        case this.controller.dpad.right.id:
-          return this.moveStage(-1, 0);
-      }
+    square.on("change", ({ state }) => {
+      this.log.info(
+        `Poost ${state ? "on" : "off"}${circle.state ? " (boost off)" : ""}`
+      );
     });
   }
 }

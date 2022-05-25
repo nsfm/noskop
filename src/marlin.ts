@@ -1,4 +1,4 @@
-import { SerialPort } from "serialport";
+import { SerialPort, SerialPortMock } from "serialport";
 import { DelimiterParser } from "@serialport/parser-delimiter";
 import Logger from "bunyan";
 
@@ -30,13 +30,13 @@ export interface CoordinateSet {
 }
 
 export class Marlin {
-  public feedrate: number = 1000; // mm/s
+  public feedrate: number = 10; // mm/s
   public steppersEnabled: boolean = false;
 
   private commandQueue: Command[] = [];
   private pendingCommand: Command | null = null;
   private log: Logger;
-  private port: SerialPort;
+  private port: SerialPort | SerialPortMock;
   private parser: DelimiterParser;
 
   private readonly debug: boolean;
@@ -52,7 +52,9 @@ export class Marlin {
         level: "debug",
       });
 
-    this.port = new SerialPort({
+    this.log.info(SerialPort.list());
+
+    this.port = new (this.debug ? SerialPortMock : SerialPort)({
       path: "/dev/ttyACM0",
       autoOpen: true,
       baudRate: 115200,

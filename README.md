@@ -40,12 +40,15 @@ controller. Customize `src/main.ts` as needed.
 ### Controls
 
 - **Left Analog** - Moves the stage on the X and Y axis
-- **Circle** - Hold to boost movement speed
-- **Mute** - Press to toggle steppers on/off. If the light is on, steppers are off
+- **Circle** - Hold to enable boost
+- **Square** - Hold to enable poost (anti-boost / precision-boost)
+- **Left Trigger** - During (b/p)oost, controls travel rate on X and Y axes
+- **Mute** - Press to toggle steppers on/off
 - **Triangle** - Get endstop and position states
+- **Cross** - Attack
 - **PS Button** - Shut down the scope and exit
-- **Left Bumper** - Raise stage slowly
-- **Right Bumper** - Lower stage slowly
+- **Left Bumper** - Raise stage
+- **Right Bumper** - Lower stage
 
 ### Tested Hardware
 
