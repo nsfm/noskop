@@ -39,7 +39,7 @@ class Noskop {
 
   public scope: Scope = new Scope({
     logger: this.log,
-    debug: false,
+    debug: !!process.env.DEBUG,
     commandRate: this.moveRate * 4,
   });
 

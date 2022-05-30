@@ -1,5 +1,6 @@
 import { SerialPort, SerialPortMock } from "serialport";
 import { DelimiterParser } from "@serialport/parser-delimiter";
+import { MockBinding } from "@serialport/binding-mock";
 import Logger from "bunyan";
 
 export interface Command {
@@ -45,6 +46,7 @@ export class Marlin {
   constructor(params: MarlinParams = {}) {
     this.debug = params.debug || false;
     this.commandRate = params.commandRate || 15;
+
     this.log =
       params.logger?.child({ module: "Marlin" }) ||
       Logger.createLogger({
@@ -52,8 +54,12 @@ export class Marlin {
         level: "debug",
       });
 
-    this.log.info(SerialPort.list());
+    if (this.debug) {
+      this.log.warn("Starting in debug mode");
+      MockBinding.createPort("/dev/ttyACM0");
+    }
 
+    this.log.info(SerialPort.list());
     this.port = new (this.debug ? SerialPortMock : SerialPort)({
       path: "/dev/ttyACM0",
       autoOpen: true,
@@ -63,9 +69,12 @@ export class Marlin {
     this.parser = this.port.pipe(new DelimiterParser({ delimiter: "\n" }));
     this.parser.on("data", (data: Buffer) => this.process(data));
 
-    setInterval(() => {
-      this.transmit();
-    }, 1000 / this.commandRate);
+    this.port.on("open", () => {
+      this.log.debug("Serial port connected");
+      setInterval(() => {
+        this.transmit();
+      }, 1000 / this.commandRate);
+    });
   }
 
   command(
@@ -102,9 +111,15 @@ export class Marlin {
       this.log[this.pendingCommand.priority ? "warn" : "debug"](
         `${this.pendingCommand.description} -> ${this.pendingCommand.command}`
       );
-      if (!this.debug) this.port.write(`${this.pendingCommand.command}\n`);
+      this.port.write(`${this.pendingCommand.command}\n`);
       this.pendingCommand.sent = Date.now();
-      if (this.debug) this.process(Buffer.from("ok"));
+
+      const { port } = this;
+      if (port instanceof SerialPortMock) {
+        setTimeout(() => {
+          if (port.port) port.port.emitData(Buffer.from("ok"));
+        }, Math.random() * 10 + 5);
+      }
     }
   }
 
