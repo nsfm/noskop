@@ -4,7 +4,7 @@ export class Scope extends Marlin {
   async setup(): Promise<void> {
     await this.setTravelUnit();
     await this.setMinFeedrate(0.001);
-    await this.setMaxFeedrate(80);
+    await this.setMaxFeedrate(200);
     await this.setMaxAcceleration(500);
     await this.setMaxJerk(10);
     await this.setTemperatureInterval(20);
@@ -12,13 +12,13 @@ export class Scope extends Marlin {
 
     await this.setStepsPerUnit("X", 400);
     await this.setAxisJerk("X", 10);
-    await this.setAxisAcceleration("X", 50);
-    await this.setAxisFeedrate("X", 50);
+    await this.setAxisAcceleration("X", 200);
+    await this.setAxisFeedrate("X", 100);
 
     await this.setStepsPerUnit("Y", 400);
     await this.setAxisJerk("Y", 10);
-    await this.setAxisAcceleration("Y", 50);
-    await this.setAxisFeedrate("Y", 50);
+    await this.setAxisAcceleration("Y", 200);
+    await this.setAxisFeedrate("Y", 100);
 
     await this.setStepsPerUnit("Z", 50); // 1/4th turn
     await this.relativeMode();

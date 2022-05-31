@@ -7,15 +7,18 @@ export class Marlin extends SerialCNC {
   // Number of decimal places for move precision
   private precision: number = 4; // 0.1um
 
-  linearMove({ x, y, z, e }: CoordinateSet, feedrate?: number): Promise<Command> {
+  linearMove(
+    { x, y, z, e }: CoordinateSet,
+    feedrate: number
+  ): Promise<Command> {
     const { precision } = this;
     return this.command(
       "Move",
       `G0 X${x.toPrecision(precision)} Y${y.toPrecision(
         precision
-      )} Z${z.toPrecision(precision)} E${e.toPrecision(this.precision)} F${
-        feedrate || this.feedrate
-      }`
+      )} Z${z.toPrecision(precision)} E${e.toPrecision(
+        this.precision
+      )} F${feedrate}`
     );
   }
 

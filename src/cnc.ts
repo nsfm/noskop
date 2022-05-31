@@ -38,7 +38,6 @@ export interface CoordinateSet {
  * Generic serial device that accepts a stream of gcode commands and responds with confirmations.
  */
 export abstract class SerialCNC {
-  public feedrate: number = 40; // mm/s
   public steppersEnabled: boolean = false;
 
   private commandQueue: Command[] = [];
@@ -166,6 +165,11 @@ export abstract class SerialCNC {
     const msg = line.toString().trim();
     if (msg.includes("//")) {
       this.log.debug(`[comment] <- ${msg}`);
+      return;
+    }
+
+    if (msg.includes("echo:busy:")) {
+      this.log.debug("Busy...");
       return;
     }
 

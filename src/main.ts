@@ -21,7 +21,7 @@ class Noskop {
   // Max overall speed, even during boost
   private maxSpeed: MillimetersPerSecond = 200;
   // Maximum boost multiplier
-  private maxBoost: Multiplier = 30;
+  private maxBoost: Multiplier = 60;
   // Largest travel allowed in a single operation
   private maxMove: Millimeters = this.maxSpeed / this.moveRate;
   // Axes to invert control of
@@ -83,8 +83,8 @@ class Noskop {
 
     try {
       this.moving = true;
-      const X = this.axisModifier("x") * Math.min(x * this.boost, this.maxMove);
-      const Y = this.axisModifier("y") * Math.min(y * this.boost, this.maxMove);
+      const X = this.axisModifier("x") * Math.min(x, this.maxMove);
+      const Y = this.axisModifier("y") * Math.min(y, this.maxMove);
       const setMode = this.scope.relativeMode();
       const move = this.scope.linearMove(
         { x: X, y: Y, z: 0, e: 0 },
