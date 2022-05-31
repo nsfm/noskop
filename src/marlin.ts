@@ -1,185 +1,22 @@
-import { SerialPort, SerialPortMock } from "serialport";
-import { DelimiterParser } from "@serialport/parser-delimiter";
-import { MockBinding } from "@serialport/binding-mock";
-import Logger from "bunyan";
+import { SerialCNC, Command, CoordinateSet } from "./cnc";
 
-export interface Command {
-  resolve: (cmd: Command) => void;
-  reject: (reason: string) => void;
-  command: string;
-  requested: number;
-  priority: boolean;
-  description: string;
-  response?: string;
-  success?: boolean;
-  send?: number;
-  sent?: number;
-  completed?: number;
-}
+/**
+ * Provides a Marlin-based gcode instruction set on top of a SerialCNC device.
+ */
+export class Marlin extends SerialCNC {
+  // Number of decimal places for move precision
+  private precision: number = 4; // 0.1um
 
-export interface MarlinParams {
-  logger?: Logger;
-  commandRate?: number; // hz
-  debug?: boolean; // when true - only log actions
-}
-
-export interface CoordinateSet {
-  x: number;
-  y: number;
-  z: number;
-  e: number;
-}
-
-export class Marlin {
-  public feedrate: number = 10; // mm/s
-  public steppersEnabled: boolean = false;
-
-  private commandQueue: Command[] = [];
-  private pendingCommand: Command | null = null;
-  private log: Logger;
-  private port: SerialPort | SerialPortMock;
-  private parser: DelimiterParser;
-
-  private readonly debug: boolean;
-  private readonly commandRate: number;
-
-  constructor(params: MarlinParams = {}) {
-    this.debug = params.debug || false;
-    this.commandRate = params.commandRate || 15;
-
-    this.log =
-      params.logger?.child({ module: "Marlin" }) ||
-      Logger.createLogger({
-        name: "Marlin",
-        level: "debug",
-      });
-
-    if (this.debug) {
-      this.log.warn("Starting in debug mode");
-      MockBinding.createPort("/dev/ttyACM0");
-    }
-
-    this.log.info(SerialPort.list());
-    this.port = new (this.debug ? SerialPortMock : SerialPort)({
-      path: "/dev/ttyACM0",
-      autoOpen: true,
-      baudRate: 115200,
-    });
-
-    this.parser = this.port.pipe(new DelimiterParser({ delimiter: "\n" }));
-    this.parser.on("data", (data: Buffer) => this.process(data));
-
-    this.port.on("open", () => {
-      this.log.debug("Serial port connected");
-      setInterval(() => {
-        this.transmit();
-      }, 1000 / this.commandRate);
-    });
-  }
-
-  command(
-    description: string,
-    command: string,
-    priority: boolean = false
-  ): Promise<Command> {
-    if (command.includes("\n"))
-      throw this.unexpected("Cannot include newline in command");
-
-    return new Promise((resolve, reject) => {
-      const cmd: Command = {
-        command,
-        resolve,
-        reject,
-        requested: Date.now(),
-        priority,
-        description,
-      };
-      priority ? this.commandQueue.unshift(cmd) : this.commandQueue.push(cmd);
-    });
-  }
-
-  priorityCommand(what: string, command: string): Promise<Command> {
-    return this.command(what, command, true);
-  }
-
-  transmit(): void {
-    if (this.pendingCommand) return;
-
-    this.pendingCommand = this.commandQueue.shift() || null;
-    if (this.pendingCommand) {
-      this.pendingCommand.send = Date.now();
-      this.log[this.pendingCommand.priority ? "warn" : "debug"](
-        `${this.pendingCommand.description} -> ${this.pendingCommand.command}`
-      );
-      this.port.write(`${this.pendingCommand.command}\n`);
-      this.pendingCommand.sent = Date.now();
-
-      const { port } = this;
-      if (port instanceof SerialPortMock) {
-        setTimeout(() => {
-          if (port.port) port.port.emitData(Buffer.from("ok"));
-        }, Math.random() * 10 + 5);
-      }
-    }
-  }
-
-  // Returns true if there are any pending commands
-  busy(): boolean {
-    return this.commandQueue.length > 0;
-  }
-
-  // Call this when something unexpected happens
-  unexpected(reason: string): Error {
-    this.log.error(`unexpected: ${reason}`);
-    this.stop()
-      .then(({ success }) => {
-        if (!success) process.exit(9);
-        this.log.error("unexpected: stopped");
-      })
-      .catch((err) => {
-        this.log.error(err);
-      });
-    return new Error(reason);
-  }
-
-  // Handle feedback from the device
-  process(line: Buffer): void {
-    const msg = line.toString().trim();
-    if (msg.includes("//")) {
-      this.log.debug(`[comment] <- ${msg}`);
-      return;
-    }
-
-    if (msg.startsWith("X")) {
-      return this.updatePosition(msg);
-    }
-
-    if (msg.startsWith("T")) {
-      return this.updateTemperature(msg);
-    }
-
-    if (this.pendingCommand) {
-      this.log.info(`${this.pendingCommand.description} <- ${msg}`);
-      this.pendingCommand.completed = Date.now();
-      this.pendingCommand.response = line.toString();
-      this.pendingCommand.success = line.toString() === "ok";
-      this.pendingCommand.resolve(this.pendingCommand);
-      this.pendingCommand = null;
-    } else {
-      this.log.info(`[received] <- ${msg}`);
-    }
-  }
-
-  updatePosition(position: string): void {
-    this.log.trace(`[position] <- ${position}`);
-  }
-
-  updateTemperature(temperature: string): void {
-    this.log.trace(`[temperature] <- ${temperature}`);
-  }
-
-  linearMove({ x, y, z, e }: CoordinateSet): Promise<Command> {
-    return this.command("Move", `G0 X${x} Y${y} Z${z} E${e} F${this.feedrate}`);
+  linearMove({ x, y, z, e }: CoordinateSet, feedrate?: number): Promise<Command> {
+    const { precision } = this;
+    return this.command(
+      "Move",
+      `G0 X${x.toPrecision(precision)} Y${y.toPrecision(
+        precision
+      )} Z${z.toPrecision(precision)} E${e.toPrecision(this.precision)} F${
+        feedrate || this.feedrate
+      }`
+    );
   }
 
   // TODO

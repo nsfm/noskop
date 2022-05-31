@@ -22,12 +22,12 @@
     "coverage:watch": "jest src --coverage --verbose --watch",
     "barrels": "barrelsby -d src -D -l replace -e 'spec.ts$'",
     "barrels:watch": "nodemon yarn barrels",
-    "debug": "DEBUG=1 nodemon -e ts,json --exec \"node --inspect --enable-source-maps --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts\""
+    "debug": "DEBUG=1 nodemon -e ts,json --exec \"node --inspect --enable-source-maps --experimental-specifier-resolution=node --loader ts-node/esm ./src/main.ts | bunyan\""
   },
   "dependencies": {
     "@serialport/parser-delimiter": "^10.3.0",
     "bunyan": "^1.8.15",
-    "dualsense-ts": "^1.3.0",
+    "dualsense-ts": "^2.0.0",
     "serialport": "^10.4.0"
   },
   "devDependencies": {

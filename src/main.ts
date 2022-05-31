@@ -19,15 +19,15 @@ class Noskop {
   // Frequency of movement evaluation
   private moveRate: Hertz = 15;
   // Max overall speed, even during boost
-  private maxSpeed: MillimetersPerSecond = 50;
+  private maxSpeed: MillimetersPerSecond = 200;
   // Maximum boost multiplier
-  private maxBoost: Multiplier = 20;
+  private maxBoost: Multiplier = 30;
   // Largest travel allowed in a single operation
   private maxMove: Millimeters = this.maxSpeed / this.moveRate;
   // Axes to invert control of
   private invert: InvertParams = {
     x: false,
-    y: true,
+    y: false,
     z: false,
     e: false,
   };
@@ -49,13 +49,11 @@ class Noskop {
     await this.scope.setup();
     this.bindControls();
     setInterval(() => {
-      console.time("checkMove");
       this.checkMove()
         .then(() => {
-          console.timeEnd("checkMove");
+          // Should time the moves
         })
         .catch((err) => {
-          console.timeEnd("checkMove");
           this.log.error(err);
         });
     }, 1000 / this.moveRate);
@@ -63,7 +61,7 @@ class Noskop {
   }
 
   // Returns 1 or -1 according to invert settings
-  private axisModifier(axis: keyof InvertParams): number {
+  private axisModifier(axis: keyof InvertParams): -1 | 1 {
     return this.invert[axis] ? -1 : 1;
   }
 
@@ -87,9 +85,11 @@ class Noskop {
       this.moving = true;
       const X = this.axisModifier("x") * Math.min(x * this.boost, this.maxMove);
       const Y = this.axisModifier("y") * Math.min(y * this.boost, this.maxMove);
-      this.log.debug(`Travel: X${X} Y${Y}`);
       const setMode = this.scope.relativeMode();
-      const move = this.scope.linearMove({ x: X, y: Y, z: 0, e: 0 });
+      const move = this.scope.linearMove(
+        { x: X, y: Y, z: 0, e: 0 },
+        this.boost * 5 + 10
+      );
       await setMode;
       await move;
       await this.scope.finish();
@@ -105,13 +105,15 @@ class Noskop {
     const { dpad } = this.controller;
     if (dpad.active) {
       return this.travel(
-        (dpad.left.state ? 1 : 0) + (dpad.right.state ? -1 : 0),
-        (dpad.up.state ? 1 : 0) + (dpad.down.state ? -1 : 0)
+        (dpad.left.state ? -this.axisModifier("x") : 0) +
+          (dpad.right.state ? this.axisModifier("x") : 0),
+        (dpad.up.state ? this.axisModifier("y") : 0) +
+          (dpad.down.state ? -this.axisModifier("y") : 0)
       );
     }
 
     const { analog } = this.controller.left;
-    if (analog.active) {
+    if (analog.active && analog.magnitude > 0.075) {
       return this.travel(analog.x.state, analog.y.state);
     }
   }
@@ -133,8 +135,9 @@ class Noskop {
       this.log.info(`Endstops: ${res.response || "err"}`);
     });
 
-    mute.on("press", async () => {
-      await scope.setSteppers(!scope.steppersEnabled);
+    // When the light turns on/off, turn steppers off/on
+    mute.status.on("change", async () => {
+      await scope.setSteppers(!mute.status.state);
     });
 
     circle.on("change", ({ state }) => {
