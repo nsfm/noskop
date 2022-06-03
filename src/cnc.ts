@@ -27,6 +27,8 @@ export interface CNCParams {
   debug?: boolean; // when true - only log actions
 }
 
+export type MachineAxis = "X" | "Y" | "Z" | "E";
+
 export interface CoordinateSet {
   x: number;
   y: number;
@@ -47,8 +49,8 @@ export abstract class SerialCNC {
   private port: SerialPortStream;
   private parser: DelimiterParser;
 
-  private readonly debug: boolean;
-  private readonly commandRate: number;
+  readonly debug: boolean;
+  readonly commandRate: number;
 
   constructor(params: CNCParams = {}) {
     this.debug = params.debug || false;

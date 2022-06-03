@@ -1,4 +1,16 @@
-import { SerialCNC, Command, CoordinateSet } from "./cnc";
+import { SerialCNC, Command, CoordinateSet, MachineAxis } from "./cnc";
+
+export interface StepperConfig {
+  name: string; // Display name for the motor
+  port: number; // Physical port number on the Marlin board, 0 indexed
+  axis: MachineAxis;
+  steps: number; // Steps required to travel 1mm
+  max: {
+    feedrate: number; // millimeters/second
+    acceleration: number; // mm/s^2
+    jerk: number; // mm/s^3
+  };
+}
 
 /**
  * Provides a Marlin-based gcode instruction set on top of a SerialCNC device.
@@ -226,5 +238,18 @@ export class Marlin extends SerialCNC {
       "Set LEDs",
       `G4 I${index} R${red} G${green} B${blue} P:${brightness}`
     );
+  }
+
+  async configureStepper(config: StepperConfig): Promise<void> {
+    const {
+      axis,
+      steps,
+      max: { jerk, acceleration, feedrate },
+    } = config;
+
+    await this.setStepsPerUnit(axis, steps);
+    await this.setAxisJerk(axis, jerk);
+    await this.setAxisAcceleration(axis, acceleration);
+    await this.setAxisFeedrate(axis, feedrate);
   }
 }

@@ -1,36 +1,14 @@
 import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
-import { Scope } from "./scope";
-
-type Millimeters = number;
-type Multiplier = number;
-type Hertz = number;
-type MillimetersPerSecond = number;
-
-export interface InvertParams {
-  x: boolean;
-  y: boolean;
-  z: boolean;
-  e: boolean;
-}
+import { Scope, StepperConfigs } from "./scope";
+import { Multiplier, Hertz } from "./units";
 
 class Noskop {
-  // Frequency of movement evaluation
-  private moveRate: Hertz = 15;
-  // Max overall speed, even during boost
-  private maxSpeed: MillimetersPerSecond = 200;
   // Maximum boost multiplier
   private maxBoost: Multiplier = 60;
-  // Largest travel allowed in a single operation
-  private maxMove: Millimeters = this.maxSpeed / this.moveRate;
-  // Axes to invert control of
-  private invert: InvertParams = {
-    x: false,
-    y: false,
-    z: false,
-    e: false,
-  };
+  // Frequency of movement evaluation
+  private moveRate: Hertz = 15;
 
   private log = Logger.createLogger({
     level: "debug",
@@ -46,7 +24,7 @@ class Noskop {
   public controller: Dualsense = new Dualsense();
 
   async setup(): Promise<void> {
-    await this.scope.setup();
+    await this.scope.setup(StepperConfigs);
     this.bindControls();
     setInterval(() => {
       this.checkMove()
@@ -58,11 +36,6 @@ class Noskop {
         });
     }, 1000 / this.moveRate);
     this.log.info("Setup complete");
-  }
-
-  // Returns 1 or -1 according to invert settings
-  private axisModifier(axis: keyof InvertParams): -1 | 1 {
-    return this.invert[axis] ? -1 : 1;
   }
 
   // Returns a feedrate multiplier for movements
@@ -77,44 +50,37 @@ class Noskop {
     return 1;
   }
 
-  private moving: boolean = false;
-  async travel(x: Millimeters, y: Millimeters): Promise<void> {
-    if (this.moving) return;
-
-    try {
-      this.moving = true;
-      const X = this.axisModifier("x") * Math.min(x, this.maxMove);
-      const Y = this.axisModifier("y") * Math.min(y, this.maxMove);
-      const setMode = this.scope.relativeMode();
-      const move = this.scope.linearMove(
-        { x: X, y: Y, z: 0, e: 0 },
-        this.boost * 5 + 10
-      );
-      await setMode;
-      await move;
-      await this.scope.finish();
-    } finally {
-      this.moving = false;
-    }
-  }
-
-  // Triggers movements using analog and dpad states
+  /**
+   * Checks active inputs to produce a suitable travel.
+   */
   async checkMove(): Promise<void> {
     if (this.scope.busy()) return;
+    const {
+      dpad,
+      left: { analog },
+    } = this.controller;
 
-    const { dpad } = this.controller;
     if (dpad.active) {
-      return this.travel(
-        (dpad.left.state ? -this.axisModifier("x") : 0) +
-          (dpad.right.state ? this.axisModifier("x") : 0),
-        (dpad.up.state ? this.axisModifier("y") : 0) +
-          (dpad.down.state ? -this.axisModifier("y") : 0)
+      return this.scope.travel(
+        {
+          x: 0,
+          y: 0,
+          e:
+            (dpad.left.state ? -this.scope.axisModifier("x") : 0) +
+            (dpad.right.state ? this.scope.axisModifier("x") : 0),
+          z:
+            (dpad.up.state ? this.scope.axisModifier("y") : 0) +
+            (dpad.down.state ? -this.scope.axisModifier("y") : 0),
+        },
+        10
       );
     }
 
-    const { analog } = this.controller.left;
     if (analog.active && analog.magnitude > 0.075) {
-      return this.travel(analog.x.state, analog.y.state);
+      return this.scope.travel(
+        { x: analog.x.state, y: analog.y.state, z: 0, e: 0 },
+        this.boost * 5 + 10
+      );
     }
   }
 
