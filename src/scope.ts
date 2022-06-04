@@ -1,6 +1,6 @@
 import { Marlin, StepperConfig } from "./marlin";
 import { CoordinateSet } from "./cnc";
-import { MillimetersPerSecond, Millimeters } from "./units";
+import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
 
 export interface InvertParams {
   x: boolean;
@@ -138,4 +138,39 @@ export class Scope extends Marlin {
       this.moving = false;
     }
   }
+
+  /**
+   * Determine how long different kinds of movements take.
+   * We need this information to know when to send travel commands;
+   * An input should be as fresh as possible, and reach the board
+   * just before any active movement enters the decel phase.
+   */
+  async calibrate(): Promise<CalibrationResult[]> {
+    const calibrations: CalibrationResult[] = [];
+
+    for (const distance of [0.001, 0.01, 0.1, 1.0]) {
+      for (const feedrate of [0.1, 1, 10, 100]) {
+        const start = Date.now();
+        for (const direction of [-1, 1, -1, 1, -1, 1]) {
+          await this.travel(
+            { x: direction * distance, y: 0, z: 0, e: 0 },
+            feedrate
+          );
+        }
+        calibrations.push({
+          distance,
+          feedrate,
+          time: (Date.now() - start) / 4,
+        });
+      }
+    }
+
+    return calibrations;
+  }
+}
+
+interface CalibrationResult {
+  distance: Millimeters;
+  feedrate: MillimetersPerSecond;
+  time: Milliseconds;
 }

@@ -44,7 +44,6 @@ export abstract class SerialCNC {
 
   private commandQueue: Command[] = [];
   private pendingCommand: Command | null = null;
-  private log: Logger;
   private portPath: string = "/dev/ttyACM0";
   private port: SerialPortStream;
   private parser: DelimiterParser;
@@ -52,14 +51,16 @@ export abstract class SerialCNC {
   readonly debug: boolean;
   readonly commandRate: number;
 
+  public log: Logger;
+
   constructor(params: CNCParams = {}) {
     this.debug = params.debug || false;
     this.commandRate = params.commandRate || 15;
 
     this.log =
-      params.logger?.child({ module: "Marlin" }) ||
+      params.logger?.child({ module: "CNC" }) ||
       Logger.createLogger({
-        name: "Marlin",
+        name: "CNC",
         level: "debug",
       });
 

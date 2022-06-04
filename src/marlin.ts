@@ -1,4 +1,10 @@
-import { SerialCNC, Command, CoordinateSet, MachineAxis } from "./cnc";
+import {
+  SerialCNC,
+  Command,
+  CoordinateSet,
+  MachineAxis,
+  CNCParams,
+} from "./cnc";
 
 export interface StepperConfig {
   name: string; // Display name for the motor
@@ -18,6 +24,11 @@ export interface StepperConfig {
 export class Marlin extends SerialCNC {
   // Number of decimal places for move precision
   private precision: number = 4; // 0.1um
+
+  constructor(params: CNCParams = {}) {
+    super(params);
+    this.log = this.log.child({ module: "Marlin" });
+  }
 
   linearMove(
     { x, y, z, e }: CoordinateSet,

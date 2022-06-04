@@ -2,13 +2,19 @@ import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
 import { Scope, StepperConfigs } from "./scope";
-import { Multiplier, Hertz } from "./units";
+import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
+
+function lerp(from: number, to: number, amount: number) {
+  return from + (to - from) * amount;
+}
 
 class Noskop {
-  // Maximum boost multiplier
-  private maxBoost: Multiplier = 60;
-  // Frequency of movement evaluation
+  // Boost intensity
+  private boostPower: Multiplier = 80;
+  // Frequency of movement evaluation (travel ticks)
   private moveRate: Hertz = 15;
+  // Amount per travel tick to move the Z axis
+  private focusStep: Millimeters = 0.01;
 
   private log = Logger.createLogger({
     level: "debug",
@@ -38,16 +44,33 @@ class Noskop {
     this.log.info("Setup complete");
   }
 
-  // Returns a feedrate multiplier for movements
-  get boost(): number {
+  /**
+   * Return a feedrate multiplier using the trigger states.
+   * Left trigger applies a linear boost up to this.maxBoost
+   * Right trigger applies a linear brake to the overall speed
+   */
+  get boost(): Multiplier {
     const {
-      circle,
-      square,
-      left: { trigger },
+      left: { trigger: l2 },
+      right: { trigger: r2 },
     } = this.controller;
-    if (square.state) return Math.abs(trigger.state - 1);
-    if (circle.state) return trigger.state * this.maxBoost;
-    return 1;
+    return (1 - r2.state) * lerp(1, this.maxBoost, l2.state);
+  }
+
+  /**
+   * Maximum feedrate multiplier.
+   * Adjusts boost range/precision.
+   */
+  get maxBoost(): Multiplier {
+    const { circle, square } = this.controller;
+    return this.boostPower / (circle.state ? 0.5 : square.state ? 2 : 1);
+  }
+
+  /**
+   * Unboosted feedrate. Also needs to change with magnification.
+   */
+  get baseFeedrate(): MillimetersPerSecond {
+    return 10;
   }
 
   /**
@@ -57,29 +80,38 @@ class Noskop {
     if (this.scope.busy()) return;
     const {
       dpad,
-      left: { analog },
+      left: { analog, bumper: l1 },
+      right: { bumper: r1 },
     } = this.controller;
 
-    if (dpad.active) {
+    if (dpad.left.active || dpad.right.active) {
       return this.scope.travel(
         {
           x: 0,
           y: 0,
           e:
-            (dpad.left.state ? -this.scope.axisModifier("x") : 0) +
-            (dpad.right.state ? this.scope.axisModifier("x") : 0),
-          z:
-            (dpad.up.state ? this.scope.axisModifier("y") : 0) +
-            (dpad.down.state ? -this.scope.axisModifier("y") : 0),
+            (dpad.left.state
+              ? -this.scope.axisModifier("e") * this.focusStep
+              : 0) +
+            (dpad.right.state
+              ? this.scope.axisModifier("e") * this.focusStep
+              : 0),
+          z: 0,
         },
         10
       );
     }
 
-    if (analog.active && analog.magnitude > 0.075) {
+    if ((analog.active && analog.magnitude > 0.075) || l1.state || r1.state) {
+      // TODO stop checking the state. Just skip short travels,
       return this.scope.travel(
-        { x: analog.x.state, y: analog.y.state, z: 0, e: 0 },
-        this.boost * 5 + 10
+        {
+          x: analog.x.state,
+          y: analog.y.state,
+          z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
+          e: 0,
+        },
+        this.baseFeedrate * this.boost
       );
     }
   }
@@ -88,7 +120,7 @@ class Noskop {
   bindControls() {
     const {
       scope,
-      controller: { ps, triangle, circle, square, mute },
+      controller: { ps, triangle, cross, circle, square, mute },
     } = this;
 
     ps.on("press", async () => {
@@ -96,9 +128,17 @@ class Noskop {
       process.exit(0);
     });
 
-    triangle.on("press", async () => {
+    cross.on("press", async () => {
       const res = await scope.getEndstopStates();
       this.log.info(`Endstops: ${res.response || "err"}`);
+    });
+
+    triangle.on("press", async () => {
+      this.log.info(`Running travel calibration`);
+      const results = await scope.calibrate();
+      for (const res of results) {
+        this.log.info(res);
+      }
     });
 
     // When the light turns on/off, turn steppers off/on
