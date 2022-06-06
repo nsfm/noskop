@@ -65,20 +65,12 @@ export class Marlin extends SerialCNC {
 
   // Inactivity - seconds until automatic shutoff without movement
   setSteppers(state: boolean, inactivity?: number): Promise<Command> {
-    const result = state
+    return state
       ? this.command("Steppers Off", "M17")
       : this.command(
           "Steppers On",
           `M18 ${inactivity ? `S${inactivity}` : ""}`
         );
-    result
-      .then(({ success }) => {
-        success ? (this.steppersEnabled = state) : this.unexpected("A");
-      })
-      .catch(() => {
-        throw this.unexpected("B");
-      });
-    return result;
   }
 
   enableSteppers(): Promise<Command> {

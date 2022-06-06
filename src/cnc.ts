@@ -40,8 +40,6 @@ export interface CoordinateSet {
  * Generic serial device that accepts a stream of gcode commands and responds with confirmations.
  */
 export abstract class SerialCNC {
-  public steppersEnabled: boolean = false;
-
   private commandQueue: Command[] = [];
   private pendingCommand: Command | null = null;
   private portPath: string = "/dev/ttyACM0";
@@ -88,13 +86,15 @@ export abstract class SerialCNC {
     });
   }
 
+  /**
+   * Add a command to the end of the local queue, to execute when the device is idle.
+   */
   command(
     description: string,
     command: string,
     priority: boolean = false
   ): Promise<Command> {
-    if (command.includes("\n"))
-      throw this.unexpected("Cannot include newline in command");
+    this.validateCommand(command);
 
     return new Promise((resolve, reject) => {
       const cmd: Command = {
@@ -109,10 +109,24 @@ export abstract class SerialCNC {
     });
   }
 
+  /**
+   * Ensure that provided commands match our processing rules.
+   */
+  validateCommand(command: string): void {
+    if (command.includes("\n"))
+      throw this.unexpected("Cannot include newline in command");
+  }
+
+  /**
+   * Add a command to the front of the local queue, so it can be executed ASAP.
+   */
   priorityCommand(what: string, command: string): Promise<Command> {
     return this.command(what, command, true);
   }
 
+  /**
+   * Write the command out over the wire to the device.
+   */
   transmit(): void {
     if (this.pendingCommand) return;
 
@@ -142,14 +156,18 @@ export abstract class SerialCNC {
     }
   }
 
-  // Returns true if there are any pending commands
+  /**
+   * Returns true if there are any pending commands.
+   */
   busy(): boolean {
     return this.commandQueue.length > 0;
   }
 
   abstract stop(): Promise<Command>;
 
-  // Call this when something unexpected happens
+  /**
+   * Called when something unexpected happens. Disconnects the machine.
+   */
   unexpected(reason: string): Error {
     this.log.error(`unexpected: ${reason}`);
     this.stop()
@@ -163,27 +181,35 @@ export abstract class SerialCNC {
     return new Error(reason);
   }
 
-  // Handle feedback from the device
+  /**
+   * Handle feedback from the device.
+   */
   process(line: Buffer): void {
     const msg = line.toString().trim();
+
+    // Variety of messages come through this way, mostly UI hints.
     if (msg.includes("//")) {
       this.log.debug(`[comment] <- ${msg}`);
       return;
     }
 
+    // Sent while waiting for some long command to finish up.
     if (msg.includes("echo:busy:")) {
       this.log.debug("Busy...");
       return;
     }
 
+    // TODO Regex
     if (msg.startsWith("X")) {
       return this.updatePosition(msg);
     }
 
+    // TODO Regex
     if (msg.startsWith("T")) {
       return this.updateTemperature(msg);
     }
 
+    // If we previously sent a command, assume any other ouput is a response for that.
     if (this.pendingCommand) {
       this.log.info(`${this.pendingCommand.description} <- ${msg}`);
       this.pendingCommand.completed = Date.now();

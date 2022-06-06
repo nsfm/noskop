@@ -14,22 +14,22 @@ export const StepperConfigs: StepperConfig[] = [
     axis: "X",
     port: 0,
     name: "Stage (X)",
-    steps: 400,
+    steps: 300,
     max: {
-      jerk: 10,
+      jerk: 100,
       acceleration: 200,
-      feedrate: 100,
+      feedrate: 500,
     },
   },
   {
     axis: "Y",
     port: 1,
     name: "Stage (Y)",
-    steps: 400, // 100 -> 1/4 turn for 0.9 degree steppers
+    steps: 300, // 100 -> 1/4 turn for 0.9 degree steppers
     max: {
-      jerk: 10,
+      jerk: 100,
       acceleration: 200,
-      feedrate: 100,
+      feedrate: 500,
     },
   },
   {
@@ -82,9 +82,9 @@ export class Scope extends Marlin {
 
     // TODO Adjust global limits
     await this.setMinFeedrate(0.001);
-    await this.setMaxFeedrate(200);
+    await this.setMaxFeedrate(400);
     await this.setMaxAcceleration(500);
-    await this.setMaxJerk(10);
+    await this.setMaxJerk(100);
 
     for (const config of stepperConfigs) {
       await this.configureStepper(config);
@@ -160,7 +160,7 @@ export class Scope extends Marlin {
         calibrations.push({
           distance,
           feedrate,
-          time: (Date.now() - start) / 4,
+          duration: (Date.now() - start) / 4,
         });
       }
     }
@@ -172,5 +172,5 @@ export class Scope extends Marlin {
 interface CalibrationResult {
   distance: Millimeters;
   feedrate: MillimetersPerSecond;
-  time: Milliseconds;
+  duration: Milliseconds;
 }

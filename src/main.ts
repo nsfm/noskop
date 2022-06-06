@@ -106,8 +106,8 @@ class Noskop {
       // TODO stop checking the state. Just skip short travels,
       return this.scope.travel(
         {
-          x: analog.x.state,
-          y: analog.y.state,
+          x: analog.x.state / 2,
+          y: analog.y.state / 2,
           z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
           e: 0,
         },
