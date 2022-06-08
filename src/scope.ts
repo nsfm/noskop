@@ -91,6 +91,7 @@ export class Scope extends Marlin {
     }
 
     await this.setFeedrate(1);
+    await this.allowColdExtrusion();
   }
 
   async jingle(): Promise<void> {

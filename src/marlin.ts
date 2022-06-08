@@ -63,6 +63,10 @@ export class Marlin extends SerialCNC {
     return this.command("Relative Mode", "G91");
   }
 
+  allowColdExtrusion(): Promise<Command> {
+    return this.command("Allow Cold Extrusion", "M302 S0");
+  }
+
   // Inactivity - seconds until automatic shutoff without movement
   setSteppers(state: boolean, inactivity?: number): Promise<Command> {
     return state

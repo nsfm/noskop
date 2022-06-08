@@ -79,37 +79,25 @@ class Noskop {
   async checkMove(): Promise<void> {
     if (this.scope.busy()) return;
     const {
-      dpad,
+      dpad: { left, right },
       left: { analog, bumper: l1 },
       right: { bumper: r1 },
     } = this.controller;
 
-    if (dpad.left.active || dpad.right.active) {
-      return this.scope.travel(
-        {
-          x: 0,
-          y: 0,
-          e:
-            (dpad.left.state
-              ? -this.scope.axisModifier("e") * this.focusStep
-              : 0) +
-            (dpad.right.state
-              ? this.scope.axisModifier("e") * this.focusStep
-              : 0),
-          z: 0,
-        },
-        10
-      );
-    }
-
-    if ((analog.active && analog.magnitude > 0.075) || l1.state || r1.state) {
+    if (
+      analog.magnitude > 0.075 ||
+      l1.state ||
+      r1.state ||
+      left.state ||
+      right.state
+    ) {
       // TODO stop checking the state. Just skip short travels,
       return this.scope.travel(
         {
           x: analog.x.state / 2,
           y: analog.y.state / 2,
           z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
-          e: 0,
+          e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
         },
         this.baseFeedrate * this.boost
       );
