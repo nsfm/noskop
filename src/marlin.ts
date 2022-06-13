@@ -5,12 +5,31 @@ import {
   MachineAxis,
   CNCParams,
 } from "./cnc";
+import {
+  Seconds,
+  Index,
+  Count,
+  Percentage,
+  Milliseconds,
+  Hertz,
+  Millimeters,
+  MillimetersPerSecond,
+  MillimetersPerSecondPerSecond,
+  MillimetersPerSecondPerSecondPerSecond,
+} from "./units";
 
 export interface StepperConfig {
-  name: string; // Display name for the motor
-  port: number; // Physical port number on the Marlin board, 0 indexed
+  // Display name for the motor
+  name: string;
+  // Physical port index on the Marlin board
+  port: number;
+  // The physical axis this stepper controls (relates to port)
   axis: MachineAxis;
-  steps: number; // Steps required to travel 1mm
+  // Number of stepper steps required to travel 1mm
+  steps: number;
+  // Reverses the direction of travel for this axis
+  invert: boolean;
+  // Sets max values for several travel properties
   max: {
     feedrate: number; // millimeters/second
     acceleration: number; // mm/s^2
@@ -18,28 +37,97 @@ export interface StepperConfig {
   };
 }
 
+export interface MovementConfig {
+  inactivityShutdown: Seconds;
+  minFeedrate: MillimetersPerSecond;
+  maxFeedrate: MillimetersPerSecond;
+  maxAcceleration: MillimetersPerSecondPerSecond;
+  maxJerk: MillimetersPerSecondPerSecondPerSecond;
+  steppers: StepperConfig[];
+}
+
 /**
- * Provides a Marlin-based gcode instruction set on top of a SerialCNC device.
+ * Provides a Marlin gcode instruction set on top of a SerialCNC device.
  */
 export class Marlin extends SerialCNC {
   // Number of decimal places for move precision
   private precision: number = 4; // 0.1um
+
+  // Tracks reversed axes
+  private invert: { [key: string]: boolean } = {};
 
   constructor(params: CNCParams = {}) {
     super(params);
     this.log = this.log.child({ module: "Marlin" });
   }
 
+  async setFeedback(): Promise<void> {
+    await this.setTemperatureInterval(20);
+    await this.setPositionInterval(5);
+  }
+
+  async setMechanics(config: MovementConfig): Promise<void> {
+    const {
+      inactivityShutdown,
+      minFeedrate,
+      maxFeedrate,
+      maxAcceleration,
+      maxJerk,
+      steppers,
+    } = config;
+
+    // Disable movement during setup
+    await this.setFeedrate(0);
+
+    await this.allowColdExtrusion();
+    await this.setTravelUnit();
+    await this.relativeMode();
+
+    await this.setInactivityShutdown(inactivityShutdown);
+    await this.setMinFeedrate(minFeedrate);
+    await this.setMaxFeedrate(maxFeedrate);
+    await this.setMaxAcceleration(maxAcceleration);
+    await this.setMaxJerk(maxJerk);
+
+    for (const stepper of steppers) {
+      await this.configureStepper(stepper);
+    }
+
+    await this.setFeedrate(1);
+  }
+
+  async configureStepper(config: StepperConfig): Promise<void> {
+    const {
+      axis,
+      steps,
+      invert,
+      max: { jerk, acceleration, feedrate },
+    } = config;
+
+    this.invert[axis] = invert;
+    await this.setStepsPerUnit(axis, steps);
+    await this.setAxisJerk(axis, jerk);
+    await this.setAxisAcceleration(axis, acceleration);
+    await this.setAxisFeedrate(axis, feedrate);
+  }
+
+  // Returns 1 or -1 according to invert settings
+  axisModifier(axis: MachineAxis): -1 | 1 {
+    return this.invert[axis] ? -1 : 1;
+  }
+
   linearMove(
     { x, y, z, e }: CoordinateSet,
-    feedrate: number
+    feedrate: MillimetersPerSecond
   ): Promise<Command> {
     const { precision } = this;
     return this.command(
       "Move",
-      `G0 X${x.toPrecision(precision)} Y${y.toPrecision(
+      `G0 X${(this.axisModifier("X") * x).toPrecision(precision)} Y${(
+        this.axisModifier("Y") * y
+      ).toPrecision(precision)} Z${(this.axisModifier("Z") * z).toPrecision(
         precision
-      )} Z${z.toPrecision(precision)} E${e.toPrecision(
+      )} E${(this.axisModifier("E") * e).toPrecision(
         this.precision
       )} F${feedrate}`
     );
@@ -51,7 +139,7 @@ export class Marlin extends SerialCNC {
   }
 
   // TODO mm to lower
-  home(stageLower: number = 5): Promise<Command> {
+  home(stageLower: Millimeters = 5): Promise<Command> {
     return this.command("Home", `G28\n O R${stageLower} X Y Z`);
   }
 
@@ -68,7 +156,7 @@ export class Marlin extends SerialCNC {
   }
 
   // Inactivity - seconds until automatic shutoff without movement
-  setSteppers(state: boolean, inactivity?: number): Promise<Command> {
+  setSteppers(state: boolean, inactivity?: Seconds): Promise<Command> {
     return state
       ? this.command("Steppers Off", "M17")
       : this.command(
@@ -85,13 +173,12 @@ export class Marlin extends SerialCNC {
     return this.setSteppers(false);
   }
 
-  setFan(index: number, speed: number): Promise<Command> {
-    if (speed < 0 || speed > 255)
-      throw this.unexpected("Fan speed outta bounds");
-    return this.command("Set Fan", `M106 I${index} S${speed}`);
+  setFan(index: Index, speed: Percentage): Promise<Command> {
+    if (speed < 0 || speed > 1) throw this.unexpected("Fan speed outta bounds");
+    return this.command("Set Fan", `M106 I${index} S${speed * 255}`);
   }
 
-  disableFan(index: number): Promise<Command> {
+  disableFan(index: Index): Promise<Command> {
     return this.command("Disable Fan", `M107 I${index}`);
   }
 
@@ -100,7 +187,7 @@ export class Marlin extends SerialCNC {
     return this.command("Set Units", "G21");
   }
 
-  keepalive(interval: number): Promise<Command> {
+  keepalive(interval: Seconds): Promise<Command> {
     return this.command("Keepalive", `M113 S${interval}`);
   }
 
@@ -128,32 +215,27 @@ export class Marlin extends SerialCNC {
   }
 
   // 0 to disable
-  setTemperatureInterval(seconds: number): Promise<Command> {
+  setTemperatureInterval(seconds: Seconds): Promise<Command> {
     return this.command("Temperature Interval", `M155 S${seconds}`);
   }
 
   // 0 to disable
-  setPositionInterval(seconds: number): Promise<Command> {
+  setPositionInterval(seconds: Seconds): Promise<Command> {
     return this.command("Position Interval", `M154 S${seconds}`);
   }
 
-  setStepsPerUnit(
-    axis: "X" | "Y" | "Z" | "E",
-    steps: number
-  ): Promise<Command> {
+  setStepsPerUnit(axis: "X" | "Y" | "Z" | "E", steps: Count): Promise<Command> {
     return this.command(`Steps per Unit (${axis})`, `M92 ${axis}${steps}`);
   }
 
-  // units-per-second
   setAxisFeedrate(
     axis: "X" | "Y" | "Z" | "E",
-    feedrate: number
+    feedrate: MillimetersPerSecond
   ): Promise<Command> {
     return this.command("Max Feedrate", `M203 ${axis}${feedrate}`);
   }
 
-  // units-per-second
-  setMaxFeedrate(feedrate: number): Promise<Command> {
+  setMaxFeedrate(feedrate: MillimetersPerSecond): Promise<Command> {
     return this.command(
       "Max Feedrate",
       `M203 X${feedrate} Y${feedrate} Z${feedrate} E${feedrate}`
@@ -161,52 +243,52 @@ export class Marlin extends SerialCNC {
   }
 
   // Apply a global speed modifier. 0 - 0% to 1 - 100%
-  setFeedrate(percentage: number): Promise<Command> {
+  setFeedrate(percentage: Percentage): Promise<Command> {
     return this.command(
       "Set Feedrate",
       `M203 S${Math.round(percentage * 100)}`
     );
   }
 
-  // units-per-second
-  setMinFeedrate(feedrate: number): Promise<Command> {
+  setMinFeedrate(feedrate: MillimetersPerSecond): Promise<Command> {
     return this.command("Min Feedrate", `M205 T${feedrate} S${feedrate}`);
   }
 
-  // units-per-second-squared
   setAxisAcceleration(
     axis: "X" | "Y" | "Z" | "E",
-    acceleration: number
+    acceleration: MillimetersPerSecondPerSecond
   ): Promise<Command> {
     return this.command("Max Acceleration", `M201 ${axis}${acceleration}`);
   }
 
-  // units-per-second-squared
-  setMaxAcceleration(acceleration: number): Promise<Command> {
+  setMaxAcceleration(
+    acceleration: MillimetersPerSecondPerSecond
+  ): Promise<Command> {
     return this.command(
       "Max Acceleration",
       `M201 X${acceleration} Y${acceleration} Z${acceleration} E${acceleration}`
     );
   }
 
-  // units-per-second
-  setAxisJerk(axis: "X" | "Y" | "Z" | "E", jerk: number): Promise<Command> {
+  setAxisJerk(
+    axis: "X" | "Y" | "Z" | "E",
+    jerk: MillimetersPerSecondPerSecondPerSecond
+  ): Promise<Command> {
     return this.command(`${axis} Jerk`, `M205 ${axis}${jerk}`);
   }
 
-  // units-per-second
-  setMaxJerk(jerk: number): Promise<Command> {
+  setMaxJerk(jerk: MillimetersPerSecondPerSecondPerSecond): Promise<Command> {
     return this.command("Max Jerk", `M205 X${jerk} Y${jerk} Z${jerk} E${jerk}`);
   }
 
-  babystep(axis: "X" | "Y" | "Z", distance: number): Promise<Command> {
+  babystep(axis: "X" | "Y" | "Z", distance: Millimeters): Promise<Command> {
     return this.command("Babystep", `M290 ${axis}${distance}`);
   }
 
-  tone(milliseconds: number, frequency: number): Promise<Command> {
+  tone(duration: Milliseconds, frequency: Hertz): Promise<Command> {
     return this.command(
       `Tone (${frequency}hz)`,
-      `M300 P${milliseconds} S${frequency}`
+      `M300 P${duration} S${frequency}`
     );
   }
 
@@ -222,7 +304,7 @@ export class Marlin extends SerialCNC {
     return this.command("Disable Endstops", "M121");
   }
 
-  dwell(milliseconds: number): Promise<Command> {
+  dwell(milliseconds: Milliseconds): Promise<Command> {
     return this.command("Dwell", `G4 P${milliseconds}`);
   }
 
@@ -230,33 +312,22 @@ export class Marlin extends SerialCNC {
     return this.command("Finish Up", "M400");
   }
 
-  setInactivityShutdown(seconds: number): Promise<Command> {
+  setInactivityShutdown(seconds: Seconds): Promise<Command> {
     return this.command("Set Auto-Shutdown", `M85 ${Math.floor(seconds)}`);
   }
 
   setLED(
-    index: number,
-    red: number,
-    green: number,
-    blue: number,
-    brightness: number
+    index: Index,
+    red: Percentage,
+    green: Percentage,
+    blue: Percentage,
+    brightness: Percentage
   ): Promise<Command> {
     return this.command(
       "Set LEDs",
-      `G4 I${index} R${red} G${green} B${blue} P:${brightness}`
+      `G4 I${index} R${red * 255} G${green * 255} B${blue * 255} P:${
+        brightness * 255
+      }`
     );
-  }
-
-  async configureStepper(config: StepperConfig): Promise<void> {
-    const {
-      axis,
-      steps,
-      max: { jerk, acceleration, feedrate },
-    } = config;
-
-    await this.setStepsPerUnit(axis, steps);
-    await this.setAxisJerk(axis, jerk);
-    await this.setAxisAcceleration(axis, acceleration);
-    await this.setAxisFeedrate(axis, feedrate);
   }
 }

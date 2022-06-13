@@ -1,97 +1,35 @@
-import { Marlin, StepperConfig } from "./marlin";
-import { CoordinateSet } from "./cnc";
+import { Stage, StageParams } from "./stage";
+import { Marlin } from "./marlin";
+import { CoordinateSet, CNCParams } from "./cnc";
 import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
 
-export interface InvertParams {
-  x: boolean;
-  y: boolean;
-  z: boolean;
-  e: boolean;
+export interface ScopeParams extends CNCParams {
+  stage?: StageParams;
 }
 
-export const StepperConfigs: StepperConfig[] = [
-  {
-    axis: "X",
-    port: 0,
-    name: "Stage (X)",
-    steps: 300,
-    max: {
-      jerk: 100,
-      acceleration: 200,
-      feedrate: 500,
-    },
-  },
-  {
-    axis: "Y",
-    port: 1,
-    name: "Stage (Y)",
-    steps: 300, // 100 -> 1/4 turn for 0.9 degree steppers
-    max: {
-      jerk: 100,
-      acceleration: 200,
-      feedrate: 500,
-    },
-  },
-  {
-    axis: "Z",
-    port: 2,
-    name: "Focus Control (Z)",
-    steps: 10,
-    max: {
-      jerk: 1,
-      acceleration: 20,
-      feedrate: 40,
-    },
-  },
-  {
-    axis: "E",
-    port: 4,
-    name: "Turret Control",
-    steps: 50, // 50 -> 1/4 turn for 1.8 degree steppers
-    max: {
-      jerk: 10,
-      acceleration: 200,
-      feedrate: 100,
-    },
-  },
-];
+interface CalibrationResult {
+  distance: Millimeters;
+  feedrate: MillimetersPerSecond;
+  duration: Milliseconds;
+}
 
+/**
+ * Coordinates various mechanics of a microscope.
+ */
 export class Scope extends Marlin {
   // Max overall speed, even during boost
-  private maxSpeed: MillimetersPerSecond = 200;
+  private maxSpeed: MillimetersPerSecond = 1000;
   // Largest travel allowed in a single operation
   private maxMove: Millimeters =
     this.maxSpeed / Math.floor(this.commandRate / 4);
-  // Axes to invert control of
-  private invert: InvertParams = {
-    x: false,
-    y: false,
-    z: false,
-    e: false,
-  };
 
-  async setup(stepperConfigs: StepperConfig[]): Promise<void> {
-    // Disable movement during setup
-    await this.setFeedrate(0);
+  public readonly stage: Stage;
 
-    await this.setTravelUnit();
-    await this.setInactivityShutdown(300);
-    await this.setTemperatureInterval(20);
-    await this.setPositionInterval(5);
-    await this.relativeMode();
+  constructor(params: ScopeParams = {}) {
+    super(params);
+    this.log = this.log.child({ module: "Scope" });
 
-    // TODO Adjust global limits
-    await this.setMinFeedrate(0.001);
-    await this.setMaxFeedrate(400);
-    await this.setMaxAcceleration(500);
-    await this.setMaxJerk(100);
-
-    for (const config of stepperConfigs) {
-      await this.configureStepper(config);
-    }
-
-    await this.setFeedrate(1);
-    await this.allowColdExtrusion();
+    this.stage = new Stage(params.stage || {});
   }
 
   async jingle(): Promise<void> {
@@ -103,17 +41,12 @@ export class Scope extends Marlin {
     await this.disableSteppers();
   }
 
-  // Returns 1 or -1 according to invert settings
-  axisModifier(axis: keyof InvertParams): -1 | 1 {
-    return this.invert[axis] ? -1 : 1;
-  }
-
   limitTravel({ x, y, z, e }: CoordinateSet): CoordinateSet {
     return {
-      x: this.axisModifier("x") * Math.min(x, this.maxMove),
-      y: this.axisModifier("y") * Math.min(y, this.maxMove),
-      z: this.axisModifier("z") * Math.min(z, this.maxMove),
-      e: this.axisModifier("e") * Math.min(e, this.maxMove),
+      x: Math.min(x, this.maxMove),
+      y: Math.min(y, this.maxMove),
+      z: Math.min(z, this.maxMove),
+      e: Math.min(e, this.maxMove),
     };
   }
 
@@ -168,10 +101,4 @@ export class Scope extends Marlin {
 
     return calibrations;
   }
-}
-
-interface CalibrationResult {
-  distance: Millimeters;
-  feedrate: MillimetersPerSecond;
-  duration: Milliseconds;
 }

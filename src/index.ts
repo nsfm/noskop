@@ -3,9 +3,12 @@
  */
 
 export * from "./cnc";
+export * from "./config";
 export * from "./lightsource";
 export * from "./main";
 export * from "./marlin";
+export * from "./math";
 export * from "./scope";
+export * from "./stage";
 export * from "./ui";
 export * from "./units";

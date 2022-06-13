@@ -23,8 +23,10 @@ export interface CNCParams {
   logger?: Logger;
   // Path for serial port, or vendor and product IDs to search for
   port?: string | { vendorId: string; productId: string };
-  commandRate?: number; // hz
-  debug?: boolean; // when true - only log actions
+  // Maximum number of commands that can be sent to the device per second
+  commandRate?: number;
+  // When true, don't connect to a USB device - just log all commands
+  debug?: boolean;
 }
 
 export type MachineAxis = "X" | "Y" | "Z" | "E";
