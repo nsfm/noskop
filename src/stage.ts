@@ -1,6 +1,7 @@
 import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
+import { CoordinateSet } from "./cnc";
 import { Scope } from "./scope";
 import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
 import { lerp } from "./math";
@@ -41,8 +42,6 @@ export class Stage {
     this.controller = params.controller || new Dualsense();
     this.scope = params.scope || new Scope();
 
-    this.bindControls();
-
     setInterval(() => {
       this.checkMove()
         .then(() => {
@@ -77,7 +76,7 @@ export class Stage {
   }
 
   /**
-   * Unboosted feedrate. Also needs to change with magnification.
+   * Unboosted feedrate. TODO needs to change with magnification.
    */
   get baseFeedrate(): MillimetersPerSecond {
     return 10;
@@ -86,72 +85,25 @@ export class Stage {
   /**
    * Checks active inputs to produce a suitable travel.
    */
-  async checkMove(): Promise<void> {
-    if (this.scope.busy()) return;
+  async checkMove(followUp: boolean = false): Promise<void> {
+    if (!followUp && this.scope.busy()) return;
+
     const {
       dpad: { left, right },
       left: { analog, bumper: l1 },
       right: { bumper: r1 },
     } = this.controller;
 
-    if (
-      analog.magnitude > 0.075 ||
-      l1.state ||
-      r1.state ||
-      left.state ||
-      right.state
-    ) {
-      // TODO stop checking the state. Just skip short travels,
-      return this.scope.travel(
-        {
-          x: analog.x.state * 5,
-          y: analog.y.state * 5,
-          z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
-          e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
-        },
-        this.baseFeedrate * this.boost
-      );
-    }
-  }
+    const coordinates: CoordinateSet = {
+      x: analog.x.state * 5,
+      y: analog.y.state * 5,
+      z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
+      e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
+    };
 
-  // Assigns other controller actions
-  bindControls() {
-    const {
-      scope,
-      controller: { ps, triangle, cross, circle, square, mute },
-    } = this;
+    const { x, y, z, e } = coordinates;
+    if (x + y + z + e < 0.00025) return;
 
-    ps.on("press", async () => {
-      await scope.shutdown();
-      process.exit(0);
-    });
-
-    cross.on("press", async () => {
-      const res = await scope.getEndstopStates();
-      this.log.info(`Endstops: ${res.response || "err"}`);
-    });
-
-    triangle.on("press", async () => {
-      this.log.info(`Running travel calibration`);
-      const results = await scope.calibrate();
-      for (const res of results) {
-        this.log.info(res);
-      }
-    });
-
-    // When the light turns on/off, turn steppers off/on
-    mute.status.on("change", async () => {
-      await scope.setSteppers(!mute.status.state);
-    });
-
-    circle.on("change", ({ state }) => {
-      if (!square.state) this.log.info(`Boost ${state ? "on" : "off"}`);
-    });
-
-    square.on("change", ({ state }) => {
-      this.log.info(
-        `Poost ${state ? "on" : "off"}${circle.state ? " (boost off)" : ""}`
-      );
-    });
+    return this.scope.travel(coordinates, this.baseFeedrate * this.boost);
   }
 }

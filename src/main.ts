@@ -24,7 +24,41 @@ class Noskop {
 
   async setup(): Promise<void> {
     await this.scope.setMechanics(movementConfig);
+    this.bindControls();
     this.log.info("Setup complete");
+  }
+
+  /**
+   * Assigns other controller actions
+   */
+  bindControls() {
+    const {
+      scope,
+      controller: { ps, triangle, cross, mute },
+    } = this;
+
+    ps.on("press", async () => {
+      await scope.shutdown();
+      process.exit(0);
+    });
+
+    cross.on("press", async () => {
+      const res = await scope.getEndstopStates();
+      this.log.info(`Endstops: ${res.response || "err"}`);
+    });
+
+    triangle.on("press", async () => {
+      this.log.info(`Running travel calibration`);
+      const results = await scope.calibrate();
+      for (const res of results) {
+        this.log.info(res);
+      }
+    });
+
+    // When the light turns on/off, turn steppers off/on
+    mute.status.on("change", async () => {
+      await scope.setSteppers(!mute.status.state);
+    });
   }
 }
 

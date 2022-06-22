@@ -41,6 +41,9 @@ export class Scope extends Marlin {
     await this.disableSteppers();
   }
 
+  /**
+   * Returns a new CoordinateSet with a limited travel distance
+   */
   limitTravel({ x, y, z, e }: CoordinateSet): CoordinateSet {
     return {
       x: Math.min(x, this.maxMove),
@@ -50,6 +53,21 @@ export class Scope extends Marlin {
     };
   }
 
+  /**
+   * Returns an estimate for the amount of time the proposed travel should take.
+   */
+  travelDuration(
+    x: Millimeters,
+    y: Millimeters,
+    feedrate: MillimetersPerSecond
+  ): Milliseconds {
+    return (
+      (Math.sqrt(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) /
+        feedrate) *
+      1000
+    );
+  }
+
   private moving: boolean = false;
 
   /**
@@ -57,7 +75,8 @@ export class Scope extends Marlin {
    */
   async travel(
     coordinates: CoordinateSet,
-    feedrate: MillimetersPerSecond
+    feedrate: MillimetersPerSecond,
+    waitForTravel: boolean = true
   ): Promise<void> {
     if (this.moving) return;
 
@@ -67,6 +86,11 @@ export class Scope extends Marlin {
       const move = this.linearMove(this.limitTravel(coordinates), feedrate);
       await setMode;
       await move;
+
+      if (!waitForTravel) {
+        return Promise.resolve();
+      }
+
       await this.finish();
     } finally {
       this.moving = false;
