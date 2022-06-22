@@ -1,7 +1,3 @@
-/**
- * These types annotate intended units for numeric values.
- */
-
 export type Seconds = number;
 
 export type Milliseconds = number;
