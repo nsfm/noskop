@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'yarn'
+
+    - name: Install
+      run: yarn install
+    
+    - name: Build
+      run: yarn build
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'yarn'
+
+      - name: Install
+        run: yarn install
+
+      - name: Lint
+        run: yarn lint
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'yarn'
+
+      - name: Install
+        run: yarn install
+
+      - name: Test
+        run: yarn coverage
+
+  analyze:
+    name: CodeQL analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+
+    - name: Install 
+      run: yarn install
+
+    - name: Build
+      run: yarn build
+
+    - name: Setup CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{matrix.language}}
+
+    - name: Analyze
+      uses: github/codeql-action/analyze@v2
+
+  release:
+    needs: [build, lint, test, analyze]
+    if: (github.ref == 'refs/heads/main') && needs.lint.result == 'success' && needs.test.result == 'success' && needs.analyze.result == 'success'
+    name: Tag & Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          registry-url: https://registry.npmjs.org/
+          cache: 'yarn'
+
+      - name: Install
+        run: yarn install
+      
+      - name: Build
+        run: yarn build
+
+      - name: Discover Version
+        id: determine_version
+        uses: paulhatch/semantic-version@v4.0.2
+        with:
+          bump_each_commit: true
+          short_tags: false
+          major_pattern: "MAJOR"
+          minor_pattern: "MINOR"
+          format: "${major}.${minor}.${patch}"
+
+      - uses: avakar/tag-and-release@v1
+        with:
+          tag_name: ${{steps.determine_version.outputs.version}}
+          release_name: ${{steps.determine_version.outputs.version}}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
