@@ -26,7 +26,7 @@ export class Stage {
   // Amount per travel tick to move the Z axis
   public focusStep: Millimeters = 0.01;
 
-  private readonly moveRate: Hertz = 15;
+  private readonly moveRate: Hertz = 60;
   private readonly log: Logger;
   private readonly controller: Dualsense;
   private readonly scope: Scope;
@@ -43,13 +43,13 @@ export class Stage {
     this.scope = params.scope || new Scope();
 
     setInterval(() => {
-      this.checkMove()
-        .then(() => {
-          // Should time the moves
-        })
-        .catch((err) => {
-          this.log.error(err);
-        });
+      if (!this.scope.travelling) {
+        this.move()
+          .then()
+          .catch((err) => {
+            this.log.error(err);
+          });
+      }
     }, 1000 / this.moveRate);
   }
 
@@ -83,9 +83,24 @@ export class Stage {
   }
 
   /**
-   * Checks active inputs to produce a suitable travel.
+   * Amount of time to wait before scheduling follow-up travels.
    */
-  async checkMove(followUp: boolean = false): Promise<void> {
+  get travelOverlap(): Multiplier {
+    return 0.75;
+  }
+
+  /**
+   * Ignore travels smaller than this threshold.
+   */
+  get moveThreshold(): Millimeters {
+    return 0.00025;
+  }
+
+  /**
+   * Checks active inputs to produce a suitable travel.
+   * Schedules the next travel to begin before this one ends.
+   */
+  async move(followUp: boolean = false): Promise<void> {
     if (!followUp && this.scope.busy()) return;
 
     const {
@@ -101,8 +116,21 @@ export class Stage {
       e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
     };
 
+    const feedrate = this.baseFeedrate * this.boost;
     const { x, y, z, e } = coordinates;
-    if (x + y + z + e < 0.00025) return;
+    if (x + y + z + e < this.moveThreshold) return;
+
+    const duration = this.scope.travelDuration(feedrate, x, y, z);
+    const nextTravelDelay = lerp(0, duration, this.travelOverlap);
+
+    setTimeout(() => {
+      this.log.info("Chain Move", feedrate, coordinates);
+      this.move(true)
+        .then()
+        .catch((err) => {
+          this.log.error(err);
+        });
+    }, nextTravelDelay);
 
     return this.scope.travel(coordinates, this.baseFeedrate * this.boost);
   }

@@ -2,6 +2,7 @@ import { Stage, StageParams } from "./stage";
 import { Marlin } from "./marlin";
 import { CoordinateSet, CNCParams } from "./cnc";
 import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
+import { distance } from "./math";
 
 export interface ScopeParams extends CNCParams {
   stage?: StageParams;
@@ -22,6 +23,8 @@ export class Scope extends Marlin {
   // Largest travel allowed in a single operation
   private maxMove: Millimeters =
     this.maxSpeed / Math.floor(this.commandRate / 4);
+  // True while travels are active
+  private moving: boolean = false;
 
   public readonly stage: Stage;
 
@@ -54,21 +57,21 @@ export class Scope extends Marlin {
   }
 
   /**
+   * Returns true if we think the scope is executing a travel right now.
+   */
+  get travelling(): boolean {
+    return this.moving
+  }
+
+  /**
    * Returns an estimate for the amount of time the proposed travel should take.
    */
   travelDuration(
-    x: Millimeters,
-    y: Millimeters,
-    feedrate: MillimetersPerSecond
+    feedrate: MillimetersPerSecond,
+    ...coordinates: Millimeters[]
   ): Milliseconds {
-    return (
-      (Math.sqrt(Math.pow(Math.abs(x), 2) + Math.pow(Math.abs(y), 2)) /
-        feedrate) *
-      1000
-    );
+    return (distance(...coordinates) / feedrate) * 1000;
   }
-
-  private moving: boolean = false;
 
   /**
    * A safe, pleasant linear move
