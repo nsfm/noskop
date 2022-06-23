@@ -6,6 +6,17 @@ import { Scope } from "./scope";
 import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
 import { lerp } from "./math";
 
+export interface StagePosition {
+  x: Millimeters;
+  y: Millimeters;
+  z: Millimeters;
+}
+
+export type StageLimits = StagePosition;
+
+/**
+ * Configures a mechanical stage that moves on the X, Y, and Z axes.
+ */
 export interface StageParams {
   // Frequency of movement evaluation (travel ticks per second)
   moveRate?: Hertz;
@@ -15,6 +26,8 @@ export interface StageParams {
   scope?: Scope;
   // The controller to listen to
   controller?: Dualsense;
+  // Boundaries to enforce in software
+  limits?: StageLimits;
 }
 
 /**
@@ -23,10 +36,21 @@ export interface StageParams {
 export class Stage {
   // Boost intensity
   public boostPower: Multiplier = 80;
+  // Increases max distance travelled in a single step
+  public travelPower: Multiplier = 5;
   // Amount per travel tick to move the Z axis
   public focusStep: Millimeters = 0.01;
+  // True when the stage understands its position
+  public homed: boolean = false;
+  // Check inputs this many times per second
+  public readonly moveRate: Hertz;
+  // Current position of the stage; relative if this.homed is false
+  public readonly position: StagePosition = { x: 0, y: 0, z: 0 };
+  // Position we are currently moving to; relative if this.homed is false
+  public readonly targetPosition: StagePosition = { x: 0, y: 0, z: 0 };
+  // When this.homed is true, restrict travel beyond these limits
+  public readonly limits: StageLimits;
 
-  private readonly moveRate: Hertz = 60;
   private readonly log: Logger;
   private readonly controller: Dualsense;
   private readonly scope: Scope;
@@ -41,6 +65,7 @@ export class Stage {
       });
     this.controller = params.controller || new Dualsense();
     this.scope = params.scope || new Scope();
+    this.limits = params.limits || { x: 75, y: 75, z: 75 };
 
     setInterval(() => {
       if (!this.scope.travelling) {
@@ -76,7 +101,8 @@ export class Stage {
   }
 
   /**
-   * Unboosted feedrate. TODO needs to change with magnification.
+   * Unboosted feedrate.
+   * TODO Should change with magnification.
    */
   get baseFeedrate(): MillimetersPerSecond {
     return 10;
@@ -91,6 +117,7 @@ export class Stage {
 
   /**
    * Ignore travels smaller than this threshold.
+   * TODO Should change with magnification.
    */
   get moveThreshold(): Millimeters {
     return 0.00025;
@@ -110,8 +137,8 @@ export class Stage {
     } = this.controller;
 
     const coordinates: CoordinateSet = {
-      x: analog.x.state * 5,
-      y: analog.y.state * 5,
+      x: analog.x.state * this.travelPower,
+      y: analog.y.state * this.travelPower,
       z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
       e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
     };
@@ -123,8 +150,19 @@ export class Stage {
     const duration = this.scope.travelDuration(feedrate, x, y, z);
     const nextTravelDelay = lerp(0, duration, this.travelOverlap);
 
+    if (!this.homed) {
+      this.targetPosition.x += x;
+      this.targetPosition.y += y;
+      this.targetPosition.z += z;
+    }
+
     setTimeout(() => {
-      this.log.info("Chain Move", feedrate, coordinates);
+      this.log.info("Chain travel", feedrate, coordinates);
+      if (!this.homed) {
+        this.position.x += x;
+        this.position.y += y;
+        this.position.z += z;
+      }
       this.move(true)
         .then()
         .catch((err) => {
