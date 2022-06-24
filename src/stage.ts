@@ -31,6 +31,20 @@ export interface StageParams {
 }
 
 /**
+ * UX state for this component.
+ */
+export interface StageState {
+  boostPower: Multiplier;
+  travelPower: Multiplier;
+  focusStep: Millimeters;
+  homed: boolean;
+  moveRate: Hertz;
+  position: StagePosition;
+  targetPosition: StagePosition;
+  limits: StageLimits;
+}
+
+/**
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
  */
 export class Stage {
@@ -171,5 +185,21 @@ export class Stage {
     }, nextTravelDelay);
 
     return this.scope.travel(coordinates, this.baseFeedrate * this.boost);
+  }
+
+  /**
+   * The current UX state of the component.
+   */
+  get state(): StageState {
+    return {
+      travelPower: this.travelPower,
+      boostPower: this.boostPower,
+      focusStep: this.focusStep,
+      homed: this.homed,
+      moveRate: this.moveRate,
+      position: this.position,
+      targetPosition: this.targetPosition,
+      limits: this.limits,
+    };
   }
 }

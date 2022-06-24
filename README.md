@@ -1,4 +1,4 @@
-## Noskop
+## noskop
 
 This project allows the operator to command a computerized microscope using a Playstation controller.
 
