@@ -1,6 +1,5 @@
-import { Stage, StageParams } from "./stage";
-import { Marlin } from "./marlin";
-import { CoordinateSet, CNCParams } from "./cnc";
+import { Stage, StageParams, StageState } from "./stage";
+import { CoordinateSet, CNCParams, Marlin } from "./cnc";
 import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
 import { distance } from "./math";
 
@@ -8,10 +7,17 @@ export interface ScopeParams extends CNCParams {
   stage?: StageParams;
 }
 
-interface CalibrationResult {
+export interface CalibrationResult {
   distance: Millimeters;
   feedrate: MillimetersPerSecond;
   duration: Milliseconds;
+}
+
+export interface ScopeState {
+  maxSpeed: MillimetersPerSecond;
+  maxMove: Millimeters;
+  moving: boolean;
+  stage: StageState;
 }
 
 /**
@@ -31,8 +37,7 @@ export class Scope extends Marlin {
   constructor(params: ScopeParams = {}) {
     super(params);
     this.log = this.log.child({ module: "Scope" });
-
-    this.stage = new Stage(params.stage || {});
+    this.stage = new Stage({ scope: this, ...(params.stage || {}) });
   }
 
   async jingle(): Promise<void> {
@@ -60,7 +65,7 @@ export class Scope extends Marlin {
    * Returns true if we think the scope is executing a travel right now.
    */
   get travelling(): boolean {
-    return this.moving
+    return this.moving;
   }
 
   /**
@@ -127,5 +132,17 @@ export class Scope extends Marlin {
     }
 
     return calibrations;
+  }
+
+  /**
+   * The current UX state of the component.
+   */
+  get state(): ScopeState {
+    return {
+      maxSpeed: this.maxSpeed,
+      maxMove: this.maxMove,
+      moving: this.moving,
+      stage: this.stage.state,
+    };
   }
 }

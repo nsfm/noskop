@@ -16,7 +16,7 @@ import {
   MillimetersPerSecond,
   MillimetersPerSecondPerSecond,
   MillimetersPerSecondPerSecondPerSecond,
-} from "./units";
+} from "../units";
 
 export interface StepperConfig {
   // Display name for the motor
