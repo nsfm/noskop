@@ -1,6 +1,5 @@
 import { Stage, StageParams, StageState } from "./stage";
-import { Marlin } from "./marlin";
-import { CoordinateSet, CNCParams } from "./cnc";
+import { CoordinateSet, CNCParams, Marlin } from "./cnc";
 import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
 import { distance } from "./math";
 

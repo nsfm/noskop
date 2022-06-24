@@ -56,14 +56,14 @@ export class Stage {
   public focusStep: Millimeters = 0.01;
   // True when the stage understands its position
   public homed: boolean = false;
-  // Check inputs this many times per second
-  public readonly moveRate: Hertz;
   // Current position of the stage; relative if this.homed is false
-  public readonly position: StagePosition = { x: 0, y: 0, z: 0 };
+  public position: StagePosition = { x: 0, y: 0, z: 0 };
   // Position we are currently moving to; relative if this.homed is false
-  public readonly targetPosition: StagePosition = { x: 0, y: 0, z: 0 };
+  public targetPosition: StagePosition = { x: 0, y: 0, z: 0 };
   // When this.homed is true, restrict travel beyond these limits
   public readonly limits: StageLimits;
+  // Check inputs this many times per second
+  public readonly moveRate: Hertz;
 
   private readonly log: Logger;
   private readonly controller: Dualsense;
@@ -137,6 +137,17 @@ export class Stage {
     return 0.00025;
   }
 
+  updateTarget({ x, y, z }: StagePosition): void {
+    this.position = this.targetPosition;
+    if (this.homed) {
+      this.targetPosition = { x, y, z };
+    } else {
+      this.targetPosition.x += x;
+      this.targetPosition.y += y;
+      this.targetPosition.z += z;
+    }
+  }
+
   /**
    * Checks active inputs to produce a suitable travel.
    * Schedules the next travel to begin before this one ends.
@@ -163,20 +174,10 @@ export class Stage {
 
     const duration = this.scope.travelDuration(feedrate, x, y, z);
     const nextTravelDelay = lerp(0, duration, this.travelOverlap);
-
-    if (!this.homed) {
-      this.targetPosition.x += x;
-      this.targetPosition.y += y;
-      this.targetPosition.z += z;
-    }
+    this.updateTarget(coordinates);
 
     setTimeout(() => {
       this.log.info("Chain travel", feedrate, coordinates);
-      if (!this.homed) {
-        this.position.x += x;
-        this.position.y += y;
-        this.position.z += z;
-      }
       this.move(true)
         .then()
         .catch((err) => {

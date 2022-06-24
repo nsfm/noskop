@@ -1,4 +1,4 @@
-import { StepperConfig, MovementConfig } from "./marlin";
+import { StepperConfig, MovementConfig } from "./cnc";
 
 export const stepperConfigs: StepperConfig[] = [
   {
