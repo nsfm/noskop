@@ -30,7 +30,7 @@
     "blessed-contrib": "^4.11.0",
     "bunyan": "^1.8.15",
     "color": "^4.2.3",
-    "dualsense-ts": "^2.1.39",
+    "dualsense-ts": "^2.2.1",
     "serialport": "^10.4.0"
   },
   "devDependencies": {
