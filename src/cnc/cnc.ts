@@ -134,28 +134,31 @@ export abstract class SerialCNC {
 
     this.pendingCommand = this.commandQueue.shift() || null;
     if (this.pendingCommand) {
+      const { priority, description, command } = this.pendingCommand;
       this.pendingCommand.send = Date.now();
-      this.log[this.pendingCommand.priority ? "warn" : "debug"](
-        `${this.pendingCommand.description} -> ${this.pendingCommand.command}`
-      );
-      this.port.write(`${this.pendingCommand.command}\n`);
+      this.log[priority ? "warn" : "debug"](`${description} -> ${command}`);
+      this.port.write(`${command}\n`);
       this.pendingCommand.sent = Date.now();
-      this.debugConfirm();
+      this.debugConfirm(command);
     }
   }
 
   /**
-   * Delays and eventually sends a mock response to the mock serial interface.
-   * @param delay Minimum number of milliseconds to wait before responding
+   * Simulates command confirmations in debug mode.
    */
-  debugConfirm(delay: number = 5): void {
-    if (this.debug) {
-      setTimeout(() => {
-        if (this.port.port instanceof MockPortBinding) {
-          this.port.port.emitData(Buffer.from("ok"));
-        }
-      }, Math.random() * 10 + delay);
-    }
+  debugConfirm(command: string = "unknown"): void {
+    if (!this.debug) return;
+
+    const delay =
+      command.startsWith("M400") || command.startsWith("G28")
+        ? 500
+        : Math.random() * 10 + 10;
+
+    setTimeout(() => {
+      if (this.port.port instanceof MockPortBinding) {
+        this.port.port.emitData(Buffer.from("ok"));
+      }
+    }, delay);
   }
 
   /**

@@ -162,22 +162,25 @@ export class Stage {
     } = this.controller;
 
     const coordinates: CoordinateSet = {
-      x: analog.x.state * this.travelPower,
-      y: analog.y.state * this.travelPower,
+      x: analog.x.force * this.travelPower,
+      y: analog.y.force * this.travelPower,
       z: this.focusStep * (l1.state ? -1 : r1.state ? 1 : 0),
       e: this.focusStep * (left.state ? -1 : right.state ? 1 : 0),
     };
 
-    const feedrate = this.baseFeedrate * this.boost;
     const { x, y, z, e } = coordinates;
-    if (x + y + z + e < this.moveThreshold) return;
+    if (Math.abs(x + y + z + e) < this.moveThreshold) return;
 
+    const feedrate = this.baseFeedrate * this.boost;
     const duration = this.scope.travelDuration(feedrate, x, y, z);
-    const nextTravelDelay = lerp(0, duration, this.travelOverlap);
+    const nextTravelDelay = Math.round(lerp(0, duration, this.travelOverlap));
     this.updateTarget(coordinates);
 
     setTimeout(() => {
-      this.log.info("Chain travel", feedrate, coordinates);
+      this.log.info(
+        `Chain travel: ${nextTravelDelay}ms @ ${feedrate}mm/s`,
+        coordinates
+      );
       this.move(true)
         .then()
         .catch((err) => {
