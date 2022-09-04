@@ -2,6 +2,7 @@ import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
 import { Scope } from "./scope";
+import { Radio } from "./radio";
 import { movementConfig } from "./config";
 
 /**
@@ -13,6 +14,8 @@ class Noskop {
     level: "debug",
     name: "noskop",
   });
+
+  public server = new Radio({ logger: this.log });
 
   public scope: Scope = new Scope({
     logger: this.log,
