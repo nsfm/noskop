@@ -26,8 +26,6 @@
   },
   "dependencies": {
     "@serialport/parser-delimiter": "^10.3.0",
-    "blessed": "^0.1.81",
-    "blessed-contrib": "^4.11.0",
     "bunyan": "^1.8.15",
     "color": "^4.2.3",
     "dualsense-ts": "^3.1.4",
@@ -35,7 +33,6 @@
   },
   "devDependencies": {
     "@serialport/binding-mock": "^10.2.2",
-    "@types/blessed": "^0.1.19",
     "@types/bunyan": "^1.8.8",
     "@types/color": "^3.0.3",
     "@types/jest": "^27.5.0",
