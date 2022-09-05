@@ -1,4 +1,18 @@
+import "reflect-metadata";
+
 import { Dualsense } from "dualsense-ts";
+import {
+  ObjectType,
+  Field,
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  InputType,
+  Float,
+  Int,
+} from "type-graphql";
+import { Min, Max } from "class-validator";
 import Logger from "bunyan";
 
 import { CoordinateSet } from "./cnc";
@@ -6,10 +20,11 @@ import { Scope } from "./scope";
 import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
 import { lerp } from "./math";
 
-export interface StagePosition {
-  x: Millimeters;
-  y: Millimeters;
-  z: Millimeters;
+@ObjectType()
+export class StagePosition {
+  x: Millimeters = 0;
+  y: Millimeters = 0;
+  z: Millimeters = 0;
 }
 
 export type StageLimits = StagePosition;
@@ -26,43 +41,62 @@ export interface StageParams {
   scope?: Scope;
   // The controller to listen to
   controller?: Dualsense;
-  // Boundaries to enforce in software
-  limits?: StageLimits;
-}
-
-/**
- * UX state for this component.
- */
-export interface StageState {
-  boostPower: Multiplier;
-  travelPower: Multiplier;
-  focusStep: Millimeters;
-  homed: boolean;
-  moveRate: Hertz;
-  position: StagePosition;
-  targetPosition: StagePosition;
-  limits: StageLimits;
 }
 
 /**
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
  */
+@ObjectType()
 export class Stage {
-  // Boost intensity
+  @Field(() => Float, { description: "Multiplies controller boost" })
+  @Min(1)
+  @Max(200)
   public boostPower: Multiplier = 80;
-  // Increases max distance travelled in a single step
+
+  @Field(() => Float, {
+    description: "Multiplies max distance travelled in a single step",
+  })
+  @Min(0.1)
+  @Max(20)
   public travelPower: Multiplier = 5;
-  // Amount per travel tick to move the Z axis
+
+  @Field(() => Float, {
+    description: "Distance per travel tick when moving on the Z axis",
+  })
+  @Min(0.00001)
+  @Max(10)
   public focusStep: Millimeters = 0.01;
-  // True when the stage understands its position
+
+  @Field(() => Boolean, {
+    description: "True when the stage knows its position",
+  })
   public homed: boolean = false;
-  // Current position of the stage; relative if this.homed is false
+
+  @Field(() => StagePosition, {
+    description:
+      "Current position of the stage; relative if this.homed is false",
+  })
   public position: StagePosition = { x: 0, y: 0, z: 0 };
-  // Position we are currently moving to; relative if this.homed is false
+
+  @Field(() => StagePosition, {
+    description:
+      "Position we are currently moving to; relative if homed is false",
+  })
   public targetPosition: StagePosition = { x: 0, y: 0, z: 0 };
-  // When this.homed is true, restrict travel beyond these limits
-  public readonly limits: StageLimits;
-  // Check inputs this many times per second
+
+  @Field(() => [StagePosition], {
+    description: "When homed is true, restrict travel between these limits",
+  })
+  public limits: [StageLimits, StageLimits] = [
+    { x: -75, y: -75, z: -75 },
+    { x: 75, y: 75, z: 75 },
+  ];
+
+  @Field(() => Int, {
+    description: "Controller inputs are processed this many times per second",
+  })
+  @Min(1)
+  @Max(120)
   public readonly moveRate: Hertz;
 
   private readonly log: Logger;
@@ -70,16 +104,16 @@ export class Stage {
   private readonly scope: Scope;
 
   constructor(params: StageParams = {}) {
-    this.moveRate = params.moveRate || 15;
+    const { moveRate, logger, controller, scope } = params;
+    this.moveRate = moveRate || 15;
     this.log =
-      params.logger?.child({ module: "Stage" }) ||
+      logger?.child({ module: "Stage" }) ||
       Logger.createLogger({
         name: "Stage",
         level: "debug",
       });
-    this.controller = params.controller || new Dualsense();
-    this.scope = params.scope || new Scope();
-    this.limits = params.limits || { x: 75, y: 75, z: 75 };
+    this.controller = controller || new Dualsense();
+    this.scope = scope || new Scope();
 
     setInterval(() => {
       if (!this.scope.travelling) {
@@ -92,20 +126,19 @@ export class Stage {
     }, 1000 / this.moveRate);
   }
 
-  /**
-   * Maximum feedrate multiplier.
-   * Adjusts boost range/precision.
-   */
+  @Field(() => Float, {
+    description:
+      "Maximum feedrate multiplier, describing boost range/precision",
+  })
   get maxBoost(): Multiplier {
     const { circle, square } = this.controller;
     return this.boostPower / (circle.state ? 0.5 : square.state ? 2 : 1);
   }
 
-  /**
-   * Return a feedrate multiplier using the trigger states.
-   * Left trigger applies a linear boost up to this.maxBoost
-   * Right trigger applies a linear brake to the overall speed
-   */
+  @Field(() => Float, {
+    description:
+      "Return a feedrate multiplier using the trigger states. Left trigger applies a linear boost up to this.maxBoost. Right trigger applies a linear brake to the overall speed ",
+  })
   get boost(): Multiplier {
     const {
       left: { trigger: l2 },
@@ -190,20 +223,50 @@ export class Stage {
 
     return this.scope.travel(coordinates, this.baseFeedrate * this.boost);
   }
+}
 
-  /**
-   * The current UX state of the component.
-   */
-  get state(): StageState {
-    return {
-      travelPower: this.travelPower,
-      boostPower: this.boostPower,
-      focusStep: this.focusStep,
-      homed: this.homed,
-      moveRate: this.moveRate,
-      position: this.position,
-      targetPosition: this.targetPosition,
-      limits: this.limits,
-    };
+@InputType()
+class StageSettings {
+  @Field(() => Float, {
+    nullable: true,
+    description: "Multiplies controller boost",
+  })
+  @Min(1)
+  @Max(200)
+  public boostPower?: Multiplier = 80;
+
+  @Field(() => Float, {
+    nullable: true,
+    description: "Multiplies max distance travelled in a single step",
+  })
+  @Min(0.1)
+  @Max(20)
+  public travelPower?: Multiplier = 5;
+
+  @Field(() => Float, {
+    nullable: true,
+    description: "Distance per travel tick when moving on the Z axis",
+  })
+  @Min(0.00001)
+  @Max(10)
+  public focusStep?: Millimeters = 0.01;
+}
+
+@Resolver(Stage)
+export class StageResolver {
+  constructor(private service: Stage) {}
+
+  @Query(() => Stage)
+  stage(): Stage {
+    return this.service;
+  }
+
+  @Mutation(() => Stage)
+  configureStage(@Arg("settings") settings: StageSettings): Stage {
+    const { boostPower, travelPower, focusStep } = settings;
+    if (boostPower) this.service.boostPower = boostPower;
+    if (travelPower) this.service.travelPower = travelPower;
+    if (focusStep) this.service.focusStep = focusStep;
+    return this.service;
   }
 }

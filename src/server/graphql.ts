@@ -58,11 +58,11 @@ const mutation = new GraphQLObjectType({
       description: "Adjust steps per millimeter (count)",
     },
     temperatureInterval: {
-      type: GraphQLInt,
+      type: Status,
       description: "Adjust temperature reading frequency (seconds)",
     },
     positionInterval: {
-      type: GraphQLInt,
+      type: Status,
       description: "Position update frequency (seconds)",
     },
 
