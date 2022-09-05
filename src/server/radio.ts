@@ -1,28 +1,34 @@
-import WebSocket, { Server } from "ws";
+import WebSocket, { WebSocketServer } from "ws";
 import Logger from "bunyan";
 
-export interface ServerParams {
+class Client extends WebSocket {
+  id: symbol = Symbol();
+}
+
+function isClient(value: WebSocket | Client): value is Client {
+  return "id" in value;
+}
+
+export interface Event<T> {
+  type: string;
+  data: T;
+}
+
+export interface RadioParams {
   logger?: Logger;
 }
 
-interface Client extends WebSocket {
-  id: symbol;
-}
-
-export interface Event {
-  type: string;
-}
-
 export class Radio {
-  private wss: Server<Client>;
+  private wss: WebSocketServer;
 
   log: Logger;
 
-  constructor({ logger }: ServerParams) {
-    this.wss = new Server<Client>({
+  constructor({ logger }: RadioParams) {
+    this.wss = new WebSocketServer({
       port: 9890,
       backlog: 64,
       clientTracking: true,
+      WebSocket: Client,
     });
 
     this.log =
@@ -41,7 +47,6 @@ export class Radio {
   private setup() {
     this.wss.on("connection", (ws: Client) => {
       this.log.info("New client", { clients: this.wss.clients.size });
-      ws.id = Symbol();
       ws.on("pong", () => {
         this.heartbeats.set(ws.id, true);
       });
@@ -52,7 +57,8 @@ export class Radio {
     });
 
     setInterval(() => {
-      this.wss.clients.forEach((ws: Client) => {
+      this.wss.clients.forEach((ws: WebSocket) => {
+        if (!isClient(ws)) throw new Error("Bad websocket client");
         if (this.heartbeats.get(ws.id) === false) return ws.terminate();
         this.heartbeats.set(ws.id, false);
         ws.ping();
@@ -68,8 +74,9 @@ export class Radio {
   /**
    * Broadcasts an event to all clients.
    */
-  public broadcast(event: Event) {
-    this.wss.clients.forEach((client: Client) => {
+  public broadcast(event: Event<unknown>) {
+    this.wss.clients.forEach((client: WebSocket) => {
+      if (!isClient(client)) throw new Error("Bad websocket client");
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify(event), { binary: false });
       }

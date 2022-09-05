@@ -2,7 +2,7 @@ import { Dualsense } from "dualsense-ts";
 import Logger from "bunyan";
 
 import { Scope } from "./scope";
-import { Radio } from "./radio";
+import { Radio } from "./server";
 import { movementConfig } from "./config";
 
 /**
