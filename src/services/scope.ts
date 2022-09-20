@@ -1,11 +1,10 @@
-import { Stage, StageParams, StageState } from "./stage";
-import { CoordinateSet, CNCParams, Marlin } from "./cnc";
-import { MillimetersPerSecond, Millimeters, Milliseconds } from "./units";
-import { distance } from "./math";
+import { Service } from "typedi";
 
-export interface ScopeParams extends CNCParams {
-  stage?: StageParams;
-}
+import { LogService, Logger } from "./";
+import { Stage } from "../stage";
+import { CoordinateSet, Marlin } from "../cnc";
+import { MillimetersPerSecond, Millimeters, Milliseconds } from "../units";
+import { distance } from "../math";
 
 export interface CalibrationResult {
   distance: Millimeters;
@@ -17,36 +16,38 @@ export interface ScopeState {
   maxSpeed: MillimetersPerSecond;
   maxMove: Millimeters;
   moving: boolean;
-  stage: StageState;
 }
 
 /**
- * Coordinates various mechanics of a microscope.
+ * Coordinates various mechanics of the microscope.
  */
-export class Scope extends Marlin {
+@Service()
+export class ScopeService {
+  // Hardware interface
+  public readonly scope: Marlin;
+  // Abstraction for hardware interface
+  public readonly stage: Stage;
+
   // Max overall speed, even during boost
   private maxSpeed: MillimetersPerSecond = 1000;
-  // Largest travel allowed in a single operation
-  private maxMove: Millimeters =
-    this.maxSpeed / Math.floor(this.commandRate / 4);
   // True while travels are active
   private moving: boolean = false;
 
-  public readonly stage: Stage;
+  private log: Logger;
 
-  constructor(params: ScopeParams = {}) {
-    super(params);
-    this.log = this.log.child({ module: "Scope" });
-    this.stage = new Stage({ scope: this, ...(params.stage || {}) });
+  constructor(logger: LogService) {
+    this.log = logger.spawn("scope");
+    this.scope = new Marlin({ logger: this.log });
+    this.stage = new Stage({ scope: this });
   }
 
   async jingle(): Promise<void> {
-    await this.tone(50, 450);
-    await this.tone(100, 600);
+    await this.scope.tone(50, 450);
+    await this.scope.tone(100, 600);
   }
 
   async shutdown(): Promise<void> {
-    await this.disableSteppers();
+    await this.scope.disableSteppers();
   }
 
   /**
@@ -59,6 +60,13 @@ export class Scope extends Marlin {
       z: Math.min(z, this.maxMove),
       e: Math.min(e, this.maxMove),
     };
+  }
+
+  /**
+   * Returns the largest travel allowed in a single operation.
+   */
+  get maxMove(): Millimeters {
+    return this.maxSpeed / Math.floor(this.scope.commandRate / 4);
   }
 
   /**
@@ -90,8 +98,11 @@ export class Scope extends Marlin {
 
     try {
       this.moving = true;
-      const setMode = this.relativeMode();
-      const move = this.linearMove(this.limitTravel(coordinates), feedrate);
+      const setMode = this.scope.relativeMode();
+      const move = this.scope.linearMove(
+        this.limitTravel(coordinates),
+        feedrate
+      );
       await setMode;
       await move;
 
@@ -99,7 +110,7 @@ export class Scope extends Marlin {
         return Promise.resolve();
       }
 
-      await this.finish();
+      await this.scope.finish();
     } finally {
       this.moving = false;
     }
@@ -142,7 +153,6 @@ export class Scope extends Marlin {
       maxSpeed: this.maxSpeed,
       maxMove: this.maxMove,
       moving: this.moving,
-      stage: this.stage.state,
     };
   }
 }

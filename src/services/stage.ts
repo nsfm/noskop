@@ -1,10 +1,10 @@
-import "reflect-metadata";
-
-import { Dualsense } from "dualsense-ts";
 import {
   ObjectType,
   Field,
+  FieldResolver,
+  Root,
   Resolver,
+  ResolverInterface,
   Query,
   Mutation,
   Arg,
@@ -13,12 +13,12 @@ import {
   Int,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Logger from "bunyan";
+import { Service } from "typedi";
 
-import { CoordinateSet } from "./cnc";
-import { Scope } from "./scope";
-import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
-import { lerp } from "./math";
+import { ScopeService, LogService, Logger, ControllerService } from "./";
+import { CoordinateSet } from "../cnc";
+import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "../units";
+import { lerp } from "../math";
 
 @ObjectType()
 export class StagePosition {
@@ -39,14 +39,12 @@ export interface StageParams {
   logger?: Logger;
   // The microscope to control
   scope?: Scope;
-  // The controller to listen to
-  controller?: Dualsense;
 }
 
 /**
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
  */
-@ObjectType()
+@Service()
 export class Stage {
   @Field(() => Float, { description: "Multiplies controller boost" })
   @Min(1)
@@ -97,22 +95,15 @@ export class Stage {
   })
   @Min(1)
   @Max(120)
-  public readonly moveRate: Hertz;
+  public readonly moveRate: Hertz = 15;
 
   private readonly log: Logger;
   private readonly controller: Dualsense;
   private readonly scope: Scope;
 
-  constructor(params: StageParams = {}) {
-    const { moveRate, logger, controller, scope } = params;
-    this.moveRate = moveRate || 15;
-    this.log =
-      logger?.child({ module: "Stage" }) ||
-      Logger.createLogger({
-        name: "Stage",
-        level: "debug",
-      });
-    this.controller = controller || new Dualsense();
+  constructor(controllerService: ControllerService, logger: LogService) {
+    this.controller = controllerService.controller;
+    this.log = logger.spawn("Stage")
     this.scope = scope || new Scope();
 
     setInterval(() => {
@@ -252,12 +243,13 @@ class StageSettings {
   public focusStep?: Millimeters = 0.01;
 }
 
-@Resolver(Stage)
+@Service()
+@Resolver(() => Stage)
 export class StageResolver {
   constructor(private service: Stage) {}
 
   @Query(() => Stage)
-  stage(): Stage {
+  stage() {
     return this.service;
   }
 
