@@ -6,7 +6,6 @@ export * from "./config";
 export * from "./lightsource";
 export * from "./main";
 export * from "./math";
-export * from "./stage";
 export * from "./units";
 export * from "./cnc/index";
 export * from "./server/index";

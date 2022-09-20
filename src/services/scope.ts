@@ -1,7 +1,6 @@
 import { Service } from "typedi";
 
 import { LogService, Logger } from "./";
-import { Stage } from "../stage";
 import { CoordinateSet, Marlin } from "../cnc";
 import { MillimetersPerSecond, Millimeters, Milliseconds } from "../units";
 import { distance } from "../math";
@@ -25,8 +24,6 @@ export interface ScopeState {
 export class ScopeService {
   // Hardware interface
   public readonly scope: Marlin;
-  // Abstraction for hardware interface
-  public readonly stage: Stage;
 
   // Max overall speed, even during boost
   private maxSpeed: MillimetersPerSecond = 1000;
@@ -38,7 +35,6 @@ export class ScopeService {
   constructor(logger: LogService) {
     this.log = logger.spawn("scope");
     this.scope = new Marlin({ logger: this.log });
-    this.stage = new Stage({ scope: this });
   }
 
   async jingle(): Promise<void> {

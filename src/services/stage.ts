@@ -14,6 +14,7 @@ import {
 } from "type-graphql";
 import { Min, Max } from "class-validator";
 import { Service } from "typedi";
+import { Dualsense } from "dualsense-ts";
 
 import { ScopeService, LogService, Logger, ControllerService } from "./";
 import { CoordinateSet } from "../cnc";
@@ -28,18 +29,6 @@ export class StagePosition {
 }
 
 export type StageLimits = StagePosition;
-
-/**
- * Configures a mechanical stage that moves on the X, Y, and Z axes.
- */
-export interface StageParams {
-  // Frequency of movement evaluation (travel ticks per second)
-  moveRate?: Hertz;
-  // The logger to extend
-  logger?: Logger;
-  // The microscope to control
-  scope?: Scope;
-}
 
 /**
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
@@ -99,12 +88,14 @@ export class Stage {
 
   private readonly log: Logger;
   private readonly controller: Dualsense;
-  private readonly scope: Scope;
 
-  constructor(controllerService: ControllerService, logger: LogService) {
-    this.controller = controllerService.controller;
-    this.log = logger.spawn("Stage")
-    this.scope = scope || new Scope();
+  constructor(
+    { controller }: ControllerService,
+    logger: LogService,
+    private readonly scope: ScopeService
+  ) {
+    this.controller = controller;
+    this.log = logger.spawn("Stage");
 
     setInterval(() => {
       if (!this.scope.travelling) {
@@ -177,7 +168,7 @@ export class Stage {
    * Schedules the next travel to begin before this one ends.
    */
   async move(followUp: boolean = false): Promise<void> {
-    if (!followUp && this.scope.busy()) return;
+    if (!followUp && this.scope.scope.busy()) return;
 
     const {
       dpad: { left, right },
