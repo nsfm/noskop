@@ -1,9 +1,9 @@
 import { Service } from "typedi";
 
-import { LogService, Logger } from "./";
-import { CoordinateSet, Marlin } from "../cnc";
-import { MillimetersPerSecond, Millimeters, Milliseconds } from "../units";
-import { distance } from "../math";
+import { LogService, Logger } from "./log";
+import { CoordinateSet, Marlin } from "../";
+import { MillimetersPerSecond, Millimeters, Milliseconds } from "../";
+import { distance } from "../";
 
 export interface CalibrationResult {
   distance: Millimeters;

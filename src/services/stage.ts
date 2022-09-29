@@ -16,7 +16,9 @@ import { Min, Max } from "class-validator";
 import { Service } from "typedi";
 import { Dualsense } from "dualsense-ts";
 
-import { ScopeService, LogService, Logger, ControllerService } from "./";
+import { ControllerService } from "./controller";
+import { LogService, Logger } from "./log";
+import { ScopeService } from "./scope";
 import { CoordinateSet } from "../cnc";
 import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "../units";
 import { lerp } from "../math";
@@ -92,7 +94,7 @@ export class Stage {
   constructor(
     { controller }: ControllerService,
     logger: LogService,
-    private readonly scope: ScopeService
+    public scope: ScopeService
   ) {
     this.controller = controller;
     this.log = logger.spawn("Stage");

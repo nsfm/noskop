@@ -1,7 +1,8 @@
 import { Service } from "typedi";
 
-import { ControllerService, LogService, ScopeService } from "./";
-import { Radio } from "../server";
+import { ControllerService } from "./controller";
+import { LogService, Logger } from "./log";
+import { ScopeService } from "./scope";
 import { movementConfig } from "../config";
 
 /**
@@ -10,18 +11,20 @@ import { movementConfig } from "../config";
  */
 @Service()
 export class Noskop {
-  constructor(
-    private readonly controller: ControllerService,
-    private readonly log: LogService,
-    private readonly scope: ScopeService
-  ) {}
+  private log: Logger;
 
-  public server = new Radio({ logger: this.log.log });
+  constructor(
+    public controller: ControllerService,
+    public scope: ScopeService,
+    log: LogService
+  ) {
+    this.log = log.spawn("noskop");
+  }
 
   async setup(): Promise<void> {
     await this.scope.scope.setMechanics(movementConfig);
     this.bindControls();
-    this.log.log.info("Setup complete");
+    this.log.info("Setup complete");
   }
 
   /**
@@ -42,14 +45,14 @@ export class Noskop {
 
     cross.on("press", async () => {
       const res = await scope.scope.getEndstopStates();
-      this.log.log.info(`Endstops: ${res.response || "err"}`);
+      this.log.info(`Endstops: ${res.response || "err"}`);
     });
 
     triangle.on("press", async () => {
-      this.log.log.info(`Running travel calibration`);
+      this.log.info(`Running travel calibration`);
       const results = await scope.calibrate();
       for (const res of results) {
-        this.log.log.info(res);
+        this.log.info(res);
       }
     });
 
