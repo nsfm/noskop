@@ -1,10 +1,10 @@
-import "reflect-metadata";
-
-import { Dualsense } from "dualsense-ts";
 import {
   ObjectType,
   Field,
+  FieldResolver,
+  Root,
   Resolver,
+  ResolverInterface,
   Query,
   Mutation,
   Arg,
@@ -13,39 +13,34 @@ import {
   Int,
 } from "type-graphql";
 import { Min, Max } from "class-validator";
-import Logger from "bunyan";
+import { Service } from "typedi";
+import { Dualsense } from "dualsense-ts";
 
-import { CoordinateSet } from "./cnc";
-import { Scope } from "./scope";
-import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "./units";
-import { lerp } from "./math";
+import { ControllerService } from "./controller";
+import { LogService, Logger } from "./log";
+import { ScopeService } from "./scope";
+import { CoordinateSet } from "../cnc";
+import { Multiplier, Hertz, Millimeters, MillimetersPerSecond } from "../units";
+import { lerp } from "../math";
 
 @ObjectType()
 export class StagePosition {
+  @Field(() => Float)
   x: Millimeters = 0;
+
+  @Field(() => Float)
   y: Millimeters = 0;
+
+  @Field(() => Float)
   z: Millimeters = 0;
 }
 
 export type StageLimits = StagePosition;
 
 /**
- * Configures a mechanical stage that moves on the X, Y, and Z axes.
- */
-export interface StageParams {
-  // Frequency of movement evaluation (travel ticks per second)
-  moveRate?: Hertz;
-  // The logger to extend
-  logger?: Logger;
-  // The microscope to control
-  scope?: Scope;
-  // The controller to listen to
-  controller?: Dualsense;
-}
-
-/**
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
  */
+@Service()
 @ObjectType()
 export class Stage {
   @Field(() => Float, { description: "Multiplies controller boost" })
@@ -97,23 +92,18 @@ export class Stage {
   })
   @Min(1)
   @Max(120)
-  public readonly moveRate: Hertz;
+  public readonly moveRate: Hertz = 15;
 
   private readonly log: Logger;
   private readonly controller: Dualsense;
-  private readonly scope: Scope;
 
-  constructor(params: StageParams = {}) {
-    const { moveRate, logger, controller, scope } = params;
-    this.moveRate = moveRate || 15;
-    this.log =
-      logger?.child({ module: "Stage" }) ||
-      Logger.createLogger({
-        name: "Stage",
-        level: "debug",
-      });
-    this.controller = controller || new Dualsense();
-    this.scope = scope || new Scope();
+  constructor(
+    { controller }: ControllerService,
+    logger: LogService,
+    public scope: ScopeService
+  ) {
+    this.controller = controller;
+    this.log = logger.spawn("Stage");
 
     setInterval(() => {
       if (!this.scope.travelling) {
@@ -186,7 +176,7 @@ export class Stage {
    * Schedules the next travel to begin before this one ends.
    */
   async move(followUp: boolean = false): Promise<void> {
-    if (!followUp && this.scope.busy()) return;
+    if (!followUp && this.scope.scope.busy()) return;
 
     const {
       dpad: { left, right },
@@ -252,12 +242,13 @@ class StageSettings {
   public focusStep?: Millimeters = 0.01;
 }
 
-@Resolver(Stage)
+@Service()
+@Resolver(() => Stage)
 export class StageResolver {
   constructor(private service: Stage) {}
 
   @Query(() => Stage)
-  stage(): Stage {
+  stage() {
     return this.service;
   }
 

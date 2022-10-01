@@ -1,72 +1,26 @@
-import { Dualsense } from "dualsense-ts";
-import Logger from "bunyan";
+import "reflect-metadata";
 
-import { Scope } from "./scope";
-import { Radio } from "./server";
-import { movementConfig } from "./config";
+import { buildSchema } from "type-graphql";
+import { Container } from "typedi";
 
-/**
- * Configures and coordinates the other components, providing an
- * entry point for the tool.
- */
-class Noskop {
-  private log = Logger.createLogger({
-    level: "debug",
-    name: "noskop",
-  });
-
-  public server = new Radio({ logger: this.log });
-
-  public scope: Scope = new Scope({
-    logger: this.log,
-    debug: !!process.env.DEBUG,
-    commandRate: 60,
-  });
-
-  public controller: Dualsense = new Dualsense();
-
-  async setup(): Promise<void> {
-    await this.scope.setMechanics(movementConfig);
-    this.bindControls();
-    this.log.info("Setup complete");
-  }
-
-  /**
-   * Assigns other controller actions
-   */
-  bindControls() {
-    const {
-      scope,
-      controller: { ps, triangle, cross, mute },
-    } = this;
-
-    ps.on("press", async () => {
-      await scope.shutdown();
-      process.exit(0);
-    });
-
-    cross.on("press", async () => {
-      const res = await scope.getEndstopStates();
-      this.log.info(`Endstops: ${res.response || "err"}`);
-    });
-
-    triangle.on("press", async () => {
-      this.log.info(`Running travel calibration`);
-      const results = await scope.calibrate();
-      for (const res of results) {
-        this.log.info(res);
-      }
-    });
-
-    // When the light turns on/off, turn steppers off/on
-    mute.status.on("change", async () => {
-      await scope.setSteppers(!mute.status.state);
-    });
-  }
-}
+import { Noskop, StageResolver, LogService, ScopeService } from "./services";
 
 async function main() {
-  const noskop = new Noskop();
+  const { log } = Container.get(LogService);
+
+  log.info("Schema setup...");
+  const schema = await buildSchema({
+    resolvers: [StageResolver],
+    container: Container,
+  });
+  log.info(schema);
+
+  const scope = Container.get(ScopeService);
+  log.info(scope);
+
+  const noskop = Container.get(Noskop);
+  log.info(noskop);
+
   await noskop.setup();
 }
 
