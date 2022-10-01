@@ -25,8 +25,13 @@ import { lerp } from "../math";
 
 @ObjectType()
 export class StagePosition {
+  @Field(() => Float)
   x: Millimeters = 0;
+
+  @Field(() => Float)
   y: Millimeters = 0;
+
+  @Field(() => Float)
   z: Millimeters = 0;
 }
 
@@ -36,6 +41,7 @@ export type StageLimits = StagePosition;
  * Stage manages travel on the X, Y and Z axis for a connected Scope.
  */
 @Service()
+@ObjectType()
 export class Stage {
   @Field(() => Float, { description: "Multiplies controller boost" })
   @Min(1)

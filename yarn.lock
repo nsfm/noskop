@@ -1672,10 +1672,10 @@ dtrace-provider@~0.8:
   dependencies:
     nan "^2.14.0"
 
-dualsense-ts@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-3.1.4.tgz#ebab40f45c60998a82655fe396c1e98b0bfc27f5"
-  integrity sha512-WtlP6gTUj8o/XJ1uD7QYpKGllVJls/Z+pKonjDRL7bkx94bpFPpcsbCVF9HELC0ZKBqZp/wtffGSqC3k2kXFqQ==
+dualsense-ts@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-4.0.0.tgz#56e355707c5459c93459776cb912a55116bf03d9"
+  integrity sha512-NGdeizQyjcC8NCXmzspo06GDei4dd47ilrD8Hfqjt6s9PM9wF+l2FA4ph3yApCraLyuJseUuW1DYSLZfyprn5A==
   dependencies:
     node-hid "^2.1.1"
 
