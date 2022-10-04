@@ -4,17 +4,9 @@ This project allows the operator to command a computerized microscope using a Pl
 
 ### Why?
 
-> An earnest desire to assist in diffusing a love for microscopical enquiry, not less for the pleasure it affords to the student, than from a conviction of its real utility and increasing practical value in promoting advancement in various branches of art, science, and manufacture.
+> The want of some concise, yet sufficiently comprehensive, _popular_ account of the Microscope, both as regards the management and manipulation of the instrument, and the varied wonders and hidden realms of beauty that are disclosed and developed by its aid. **Jabez Hogg**, _The Microscope: Its History, Construction, and Application_, 1854
 
-> And the belief that many who possess microscopes are deterred from attempting any branch of original investigation solely by the great difficulty they experience surmounting elementary detail and mere mechanical operations.
-
-**Lionel Smith Beale**, _How To Work With The Microscope_, 1857
-
-> [...] the want of some concise, yet sufficiently comprehensive, _popular_ account of the Microscope, both as regards the management and manipulation of the instrument, and the varied wonders and hidden realms of beauty that are disclosed and developed by its aid.
-
-> Finally, it is the Author’s hope that, by the instrumentality of this volume, he may possibly assist in bringing the Microscope, and its valuable and delightful studies, before the general public in a more familiar, compendious, and economical form than he found it at the period of its publication.
-
-**Jabez Hogg**, _The Microscope: Its History, Construction, and Application_, 1854
+> And the belief that many who possess microscopes are deterred from attempting any branch of original investigation solely by the great difficulty they experience surmounting elementary detail and mere mechanical operations. **Lionel Smith Beale**, _How To Work With The Microscope_, 1857
 
 ### How?
 
