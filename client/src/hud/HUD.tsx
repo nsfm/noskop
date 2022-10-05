@@ -2,6 +2,7 @@ import React from "react";
 import { Illustration } from "react-zdog";
 
 import { Reticle } from "./Reticle";
+import { Scale } from "./Scale";
 import "./HUD.css";
 
 export const HUD = () => {
@@ -9,6 +10,7 @@ export const HUD = () => {
     <div className="hud">
       <Illustration element="svg" zoom={15}>
         <Reticle />
+        <Scale />
       </Illustration>
     </div>
   );
