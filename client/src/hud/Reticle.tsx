@@ -1,10 +1,12 @@
 import React from "react";
-import { useRender, useZdog, Ellipse } from "react-zdog";
+import { useRender, useZdog, Ellipse, Shape } from "react-zdog";
 
 interface ReticleState {
   offset: { x: number; y: number };
   opacity: number;
   diameter: number;
+  thickness: number;
+  parallax: number;
 }
 
 /**
@@ -14,8 +16,24 @@ export const Reticle = () => {
   const [state, setState] = React.useState<ReticleState>({
     offset: { x: 0, y: 0 },
     opacity: 0.7,
-    diameter: 0.1,
+    diameter: 5,
+    thickness: 0.25,
+    parallax: 0.1,
   });
 
-  return <Ellipse stroke={10} diameter={10} color="orange" />;
+  return (
+    <Shape stroke={0}>
+      <Ellipse
+        stroke={state.thickness}
+        diameter={state.diameter}
+        color="orange"
+      />
+      <Ellipse
+        stroke={state.thickness}
+        diameter={state.diameter}
+        color="blue"
+        translate={{ x: state.parallax, y: state.parallax, z: -1 }}
+      />
+    </Shape>
+  );
 };
