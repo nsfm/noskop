@@ -10,7 +10,8 @@ export const HUD = () => {
     <div className="hud">
       <Illustration element="svg" zoom={15}>
         <Reticle />
-        <Scale />
+        <Scale direction="x" offset={{ y: -15 }} width={30} />
+        <Scale direction="y" offset={{ x: -15 }} width={20} ticks={21} />
       </Illustration>
     </div>
   );
