@@ -45,8 +45,8 @@ export abstract class SerialCNC {
   private commandQueue: Command[] = [];
   private pendingCommand: Command | null = null;
   private portPath: string = "/dev/ttyACM0";
-  private port: SerialPortStream;
-  private parser: DelimiterParser;
+  private port?: SerialPortStream;
+  private parser?: DelimiterParser;
 
   readonly debug: boolean;
   readonly commandRate: number;
@@ -137,7 +137,9 @@ export abstract class SerialCNC {
       const { priority, description, command } = this.pendingCommand;
       this.pendingCommand.send = Date.now();
       this.log[priority ? "warn" : "debug"](`${description} -> ${command}`);
-      this.port.write(`${command}\n`);
+      this.port
+        ? this.port.write(`${command}\n`)
+        : this.log.warn("command lost: no device");
       this.pendingCommand.sent = Date.now();
       this.debugConfirm(command);
     }
@@ -155,7 +157,7 @@ export abstract class SerialCNC {
         : Math.random() * 10 + 10;
 
     setTimeout(() => {
-      if (this.port.port instanceof MockPortBinding) {
+      if (this.port && this.port.port instanceof MockPortBinding) {
         this.port.port.emitData(Buffer.from("ok"));
       }
     }, delay);
