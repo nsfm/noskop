@@ -1,5 +1,5 @@
 import React from "react";
-import { useRender, useZdog, Shape } from "react-zdog";
+import { useRender, useZdog, Ellipse } from "react-zdog";
 
 interface ReticleState {
   offset: { x: number; y: number };
@@ -17,5 +17,5 @@ export const Reticle = () => {
     diameter: 0.1,
   });
 
-  return <Shape stroke={10} color="orange" />;
+  return <Ellipse stroke={10} diameter={10} color="orange" />;
 };

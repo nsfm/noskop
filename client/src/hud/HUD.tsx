@@ -1,10 +1,11 @@
-import React from "react";
-import { Illustration, Box } from "react-zdog";
+import { Illustration } from "react-zdog";
+
+import { Reticle } from "./Reticle";
 
 export const HUD = () => {
   return (
     <Illustration element="svg" zoom={15}>
-      <Box />
+      <Reticle />
     </Illustration>
   );
 };
