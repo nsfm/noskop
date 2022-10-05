@@ -1,7 +1,9 @@
 import React from "react";
 import Webcam from "react-webcam";
 
-export const MainCamera = () => {
+import "./MainCamera.css";
+
+export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
 
   const handleDevices = React.useCallback(
@@ -16,15 +18,14 @@ export const MainCamera = () => {
 
   return (
     <>
-      {devices.map((device, key) => (
-        <div>
-          <Webcam
-            audio={false}
-            videoConstraints={{ deviceId: device.deviceId }}
-          />
-          {device.label || `Device ${key + 1}`}
-        </div>
+      {devices.map((device) => (
+        <Webcam
+          className="maincamera"
+          audio={false}
+          videoConstraints={{ deviceId: device.deviceId }}
+        />
       ))}
+      {children}
     </>
   );
 };
