@@ -2,13 +2,15 @@ declare module "react-zdog" {
   import React from "react";
   import zdog from "zdog";
 
-  export function useZdog(): {
+  export type ZdogContext = {
     illu: zdog.Illustration;
     scene: zdog.Anchor;
-    size: { left: number; top: number; width: number; height: number };
+    size: DOMRectReadOnly;
   };
 
-  export function useRender(...args: unknown): unknown;
+  export function useZdog(): ZdogContext;
+
+  export function useRender(cb: (time: number) => unknown): unknown;
 
   export const Illustration: React.FunctionComponent<
     React.PropsWithChildren<{

@@ -18,11 +18,12 @@ export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
 
   return (
     <>
-      {devices.map((device) => (
+      {devices.map(({ deviceId }) => (
         <Webcam
+          key={deviceId}
           className="maincamera"
           audio={false}
-          videoConstraints={{ deviceId: device.deviceId }}
+          videoConstraints={{ deviceId }}
         />
       ))}
       {children}
