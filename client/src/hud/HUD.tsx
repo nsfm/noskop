@@ -60,9 +60,8 @@ export const HUDRule = () => {
 export const HUD = () => {
   return (
     <div className="hud">
-      <Illustration element="svg" zoom={1}>
+      <Illustration element="svg" zoom={10}>
         <Reticle />
-        <HUDRule />
       </Illustration>
     </div>
   );

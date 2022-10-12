@@ -1,6 +1,8 @@
 import React from "react";
 import { Ellipse, Shape } from "react-zdog";
 
+import { ControllerContext } from "../Controller";
+
 interface ReticleState {
   offset: { x: number; y: number };
   opacity: number;
@@ -13,6 +15,18 @@ interface ReticleState {
  * Represents the focal point of the main camera image. Manipulators should be centered on this point.
  */
 export const Reticle = () => {
+  const controller = React.useContext(ControllerContext);
+  const [analog, setAnalog] = React.useState(controller.left.analog);
+  React.useEffect(() => {
+    console.log("seEffect");
+    controller.left.analog.on("change", (an) => {
+      console.log(an.angle, an.magnitude);
+      setAnalog(an);
+    });
+  }, []);
+
+  console.log(`Reticle: ${analog.angle} ${analog.magnitude}`);
+
   const [state] = React.useState<ReticleState>({
     offset: { x: 0, y: 0 },
     opacity: 0.7,
@@ -22,7 +36,13 @@ export const Reticle = () => {
   });
 
   return (
-    <Shape rotate={{ y: Math.PI / 8, x: Math.PI / 8 }} stroke={0}>
+    <Shape
+      rotate={{
+        y: Math.sin(analog.angle),
+        x: Math.cos(analog.angle),
+      }}
+      stroke={0}
+    >
       <Ellipse
         stroke={state.thickness}
         diameter={state.diameter}
