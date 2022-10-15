@@ -16,16 +16,16 @@ interface ReticleState {
  */
 export const Reticle = () => {
   const controller = React.useContext(ControllerContext);
-  const [analog, setAnalog] = React.useState(controller.left.analog);
+  const [{ direction, magnitude }, setAnalog] = React.useState(
+    controller.left.analog.vector
+  );
   React.useEffect(() => {
-    console.log("seEffect");
-    controller.left.analog.on("change", (an) => {
-      console.log(an.angle, an.magnitude);
-      setAnalog(an);
+    controller.left.analog.on("change", (analog) => {
+      setAnalog(analog.vector);
     });
   }, []);
 
-  console.log(`Reticle: ${analog.angle} ${analog.magnitude}`);
+  console.log(`Reticle: ${direction} x ${magnitude}`);
 
   const [state] = React.useState<ReticleState>({
     offset: { x: 0, y: 0 },
@@ -38,8 +38,8 @@ export const Reticle = () => {
   return (
     <Shape
       rotate={{
-        y: Math.sin(analog.angle),
-        x: Math.cos(analog.angle),
+        y: Math.sin(direction),
+        x: Math.cos(magnitude),
       }}
       stroke={0}
     >
@@ -52,7 +52,7 @@ export const Reticle = () => {
         stroke={state.thickness}
         diameter={state.diameter}
         color="blue"
-        translate={{ x: state.parallax, y: state.parallax, z: -1 }}
+        translate={{ x: magnitude, y: state.parallax, z: -1 }}
       />
     </Shape>
   );

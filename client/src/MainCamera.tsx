@@ -1,7 +1,16 @@
 import React from "react";
 import Webcam from "react-webcam";
+import styled from "styled-components";
 
-import "./MainCamera.css";
+const MainCamContainer = styled.div`
+  .maincamera {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+`;
 
 export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
@@ -17,16 +26,15 @@ export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
   }, [handleDevices]);
 
   return (
-    <>
-      {devices.map(({ deviceId }) => (
+    <MainCamContainer>
+      {
         <Webcam
-          key={deviceId}
-          className="maincamera"
+          key={devices[0].deviceId}
           audio={false}
-          videoConstraints={{ deviceId }}
+          videoConstraints={{ deviceId: devices[0].deviceId }}
         />
-      ))}
+      }
       {children}
-    </>
+    </MainCamContainer>
   );
 };

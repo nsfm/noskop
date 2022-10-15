@@ -2,6 +2,7 @@ import React from "react";
 import { Illustration, Anchor, useZdog, useRender } from "react-zdog";
 
 import { Reticle } from "./Reticle";
+import { ControllerConnection } from "./ControllerConnection";
 import { GraduatedRule } from "./GraduatedRule";
 import "./HUD.css";
 
@@ -61,6 +62,7 @@ export const HUD = () => {
   return (
     <div className="hud">
       <Illustration element="svg" zoom={10}>
+        <ControllerConnection />
         <Reticle />
       </Illustration>
     </div>

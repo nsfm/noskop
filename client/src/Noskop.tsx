@@ -1,18 +1,28 @@
 import React from "react";
+import styled from "styled-components";
 
 import { MainCamera } from "./MainCamera";
 import { HUD } from "./hud/HUD";
 import { ControllerContext, controller } from "./Controller";
-import "./Noskop.css";
+
+const MainContainer = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  background-color: #282c34;
+`;
 
 export const Noskop = () => {
   return (
-    <div className="noskop">
-      <ControllerContext.Provider value={controller}>
-        <MainCamera>
+    <MainContainer>
+      <MainCamera>
+        <ControllerContext.Provider value={controller}>
           <HUD />
-        </MainCamera>
-      </ControllerContext.Provider>
-    </div>
+        </ControllerContext.Provider>
+      </MainCamera>
+    </MainContainer>
   );
 };
