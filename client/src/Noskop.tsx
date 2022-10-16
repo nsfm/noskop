@@ -11,7 +11,7 @@ const MainContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: min-content;
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
   background-color: #000000;

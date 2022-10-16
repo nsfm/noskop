@@ -3,14 +3,13 @@ import styled from "styled-components";
 import { Illustration } from "react-zdog";
 
 const HUDContainer = styled.div`
-  display: inline-flex;
   position: absolute;
   opacity: 0.7;
   z-index: 10;
   top: 0;
   margin: auto;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 `;
 

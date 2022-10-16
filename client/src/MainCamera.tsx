@@ -4,10 +4,10 @@ import styled from "styled-components";
 
 const MainCamContainer = styled.div`
   display: inline-flex;
-  position: relative;
-  height: 100vh;
+  height: 100%;
   width: min-content;
   overflow: hidden;
+  background-color: #000000;
 `;
 
 /**
