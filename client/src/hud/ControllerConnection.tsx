@@ -1,8 +1,15 @@
 import React from "react";
 import { Ellipse } from "react-zdog";
+import styled from "styled-components";
 
 import { ControllerContext, requestPermission } from "../Controller";
-import "./ControllerConnection.css";
+
+const Button = styled.button`
+  position: absolute;
+  top: -50;
+  left: 50;
+  z-index: 15;
+`;
 
 export const ControllerConnection = () => {
   const controller = React.useContext(ControllerContext);

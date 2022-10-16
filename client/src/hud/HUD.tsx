@@ -1,70 +1,27 @@
-import React from "react";
-import { Illustration, Anchor, useZdog, useRender } from "react-zdog";
+import { PropsWithChildren } from "react";
+import styled from "styled-components";
+import { Illustration } from "react-zdog";
 
-import { Reticle } from "./Reticle";
-import { ControllerConnection } from "./ControllerConnection";
-import { GraduatedRule } from "./GraduatedRule";
-import "./HUD.css";
+const HUDContainer = styled.div`
+  position: absolute;
+  opacity: 0.7;
+  z-index: 10;
+  top: 0;
+  margin: auto;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+`;
 
 /**
- * Positions and scales the graduated rulers at the top and bottom of the screen.
+ * Container for rendered svg HUD elements
  */
-export const HUDRule = () => {
-  const { size } = useZdog();
-  const [{ height, width }] = React.useState(size);
-
-  const ref = React.useRef<typeof Anchor>();
-
-  const refX = React.useRef(
-    <GraduatedRule
-      direction="x"
-      offset={{ y: (height / 2) * -0.8 }}
-      length={width * 0.8}
-      gradation={{
-        count: 31,
-        length: width / 100,
-        thickness: width / 100,
-      }}
-    />
-  );
-
-  useRender(() => {
-    if (ref.current) ref.current.rotate.z += 0.01;
-  });
-
-  React.useEffect(() => {
-    const handleResize = () => {
-      console.log("resize", size);
-    };
-
-    window.addEventListener("resize", handleResize);
-  });
-
-  console.log(size);
+export const HUD = ({ children }: PropsWithChildren) => {
   return (
-    <Anchor ref={ref}>
-      {refX.current}
-      <GraduatedRule
-        direction="y"
-        offset={{ x: (width / 2) * -0.8 }}
-        length={height * 0.8}
-        gradation={{
-          count: 31,
-          length: width / 100,
-          thickness: width / 100,
-        }}
-      />
-    </Anchor>
-  );
-};
-
-export const HUD = () => {
-  return (
-    <div className="hud">
-      <Illustration element="svg" zoom={10}>
-        <ControllerConnection />
-        <Reticle />
+    <HUDContainer>
+      <Illustration element="svg" zoom={15}>
+        {children}
       </Illustration>
-    </div>
+    </HUDContainer>
   );
 };

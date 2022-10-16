@@ -3,16 +3,15 @@ import Webcam from "react-webcam";
 import styled from "styled-components";
 
 const MainCamContainer = styled.div`
-  .maincamera {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-  }
+  position: relative;
+  height: 100vh;
 `;
+// overflow: hidden;
 
-export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
+/**
+ * Container for main webcam display
+ */
+export const MainCamera = () => {
   const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
 
   const handleDevices = React.useCallback(
@@ -25,16 +24,25 @@ export const MainCamera = ({ children }: React.PropsWithChildren<{}>) => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices);
   }, [handleDevices]);
 
+  console.group("Webcam");
+  console.log(devices.map((device) => device.toJSON()));
+  console.groupEnd();
+
   return (
     <MainCamContainer>
-      {
+      {devices.length ? (
         <Webcam
-          key={devices[0].deviceId}
+          height="100%"
+          key={devices[devices.length - 1].deviceId}
           audio={false}
-          videoConstraints={{ deviceId: devices[0].deviceId }}
+          videoConstraints={{
+            deviceId: devices[devices.length - 1].deviceId,
+            frameRate: { min: 30, ideal: 60 },
+          }}
         />
-      }
-      {children}
+      ) : (
+        <div>Waiting for a webcam...</div>
+      )}
     </MainCamContainer>
   );
 };
