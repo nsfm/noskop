@@ -9,4 +9,3 @@ export * from "./HUD";
 export * from "./Reticle";
 export * from "./Rule";
 export * from "./Waypoint";
-export * from "./react-zdog";

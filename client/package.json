@@ -41,7 +41,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "barrels": "barrelsby --directory=src --delete --location=below --name='index.tsx' --exclude='spec.ts$' --input-type=module"
+    "barrels": "barrelsby --directory=src --delete --location=below --name='index.tsx' --exclude='.d.ts' --exclude='spec.ts$' --input-type=module"
   },
   "eslintConfig": {
     "extends": [

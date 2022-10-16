@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Illustration } from "react-zdog";
 
 const HUDContainer = styled.div`
+  display: inline-flex;
   position: absolute;
   opacity: 0.7;
   z-index: 10;

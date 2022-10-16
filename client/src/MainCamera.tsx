@@ -3,10 +3,12 @@ import Webcam from "react-webcam";
 import styled from "styled-components";
 
 const MainCamContainer = styled.div`
+  display: inline-flex;
   position: relative;
   height: 100vh;
+  width: min-content;
+  overflow: hidden;
 `;
-// overflow: hidden;
 
 /**
  * Container for main webcam display
