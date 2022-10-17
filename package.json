@@ -29,7 +29,7 @@
     "bunyan": "^1.8.15",
     "class-validator": "^0.13.2",
     "color": "^4.2.3",
-    "dualsense-ts": "5.0.0",
+    "dualsense-ts": "5.0.4",
     "graphql": "15",
     "reflect-metadata": "^0.1.13",
     "serialport": "^10.4.0",

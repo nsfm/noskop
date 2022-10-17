@@ -1577,10 +1577,10 @@ dtrace-provider@~0.8:
   dependencies:
     nan "^2.14.0"
 
-dualsense-ts@5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-5.0.0.tgz#ead327bb6af2cbf69b58291b62032dce4f7d3af8"
-  integrity sha512-hEIR8C9MjRCfYnHp5G59NZo68eYTGem5JQY8D7dpmCfBCKPSte6PgrYAU4B0OclCLGg3rgPYdR5f9MA9wpAuUQ==
+dualsense-ts@5.0.4:
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-5.0.4.tgz#5995c70bc7a22fa65f1085c030e97a42abd69630"
+  integrity sha512-UosocDUNklVOMcD6QxFJolB4DHk1SRS1MdTbg4Q797zdqTgLr+1Ymf8C+q49lLMNMouOI756VEtw5s9/Jw01xw==
 
 electron-to-chromium@^1.4.202:
   version "1.4.241"
