@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Illustration, Ellipse, Shape } from "react-zdog";
 
-import { HUDElement } from "./HUDElement";
+import { RenderedElement } from "./RenderedElement";
 import { ControllerContext } from "../Controller";
 
 interface ReticleState {
@@ -13,7 +13,7 @@ interface ReticleState {
   zoom: number;
 }
 
-const StyledReticle = styled(HUDElement)`
+const StyledReticle = styled(RenderedElement)`
   position: absolute;
   top: 50%;
   left: 50%;

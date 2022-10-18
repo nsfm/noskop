@@ -1,19 +1,20 @@
-import { useRef, useEffect, useState, useContext } from "react";
-import { Illustration, Ellipse, useRender, Anchor } from "react-zdog";
+import { useEffect, useState, useContext } from "react";
+import { Illustration, Ellipse } from "react-zdog";
 import styled from "styled-components";
 
-import { HUDElement } from "./HUDElement";
+import { RenderedElement } from "./RenderedElement";
 import { ControllerContext, requestPermission } from "../Controller";
 
 const Button = styled.button`
-  position: absolute;
-  top: -50;
-  left: 50;
-  z-index: 15;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 5px;
 `;
 
-const Position = styled(HUDElement)`
+const Position = styled.div`
   position: absolute;
+  display: flex;
+  align-items: center;
   top: 10%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -34,7 +35,7 @@ export const ControllerConnection = () => {
   const [connected, setConnected] = useState(controller.connection.state);
   const [rotation, setRotation] = useState(0);
   useEffect(() => {
-    setInterval(() => setRotation((Date.now() / 1000) % Math.PI), 1000 / 30);
+    setInterval(() => setRotation((Date.now() / 2000) % Math.PI), 1000 / 30);
     controller.connection.on("change", ({ state }) => {
       setConnected(state);
     });
@@ -49,9 +50,9 @@ export const ControllerConnection = () => {
     zoom: 15,
   });
 
-  const svg = (
-    <>
-      <Position
+  return (
+    <Position>
+      <RenderedElement
         width={(state.diameter + state.thickness) * state.zoom}
         height={(state.diameter + state.thickness) * state.zoom}
       >
@@ -61,13 +62,11 @@ export const ControllerConnection = () => {
             stroke={state.thickness}
             diameter={state.diameter}
             color={connected ? "orange" : "blue"}
-            onClick={requestPermission}
             translate={{ x: 0, y: 0 }}
           />
         </Illustration>
-      </Position>
-    </>
+      </RenderedElement>
+      <Button onClick={requestPermission}>Connect&nbsp;Controller</Button>
+    </Position>
   );
-
-  return svg;
 };

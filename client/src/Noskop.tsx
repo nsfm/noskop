@@ -3,7 +3,7 @@ import { MouseEvent } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 import { Camera } from "./Camera";
-import { Reticle, ControllerConnection } from "./hud";
+import { Reticle, ControllerConnection, Inventory } from "./hud";
 import { ControllerContext, controller } from "./Controller";
 
 const AppContainer = styled.div`
@@ -38,10 +38,11 @@ export const Noskop = () => {
   return (
     <ControllerContext.Provider value={controller}>
       <FullScreen handle={fullscreen}>
-        <AppContainer className="AppContainer" onClick={toggleFullscreen}>
+        <AppContainer className="AppContainer">
           <Camera>
             <Reticle />
             <ControllerConnection />
+            <Inventory />
           </Camera>
         </AppContainer>
       </FullScreen>

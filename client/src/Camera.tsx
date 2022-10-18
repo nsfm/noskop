@@ -1,15 +1,9 @@
-import {
-  useRef,
-  useLayoutEffect,
-  useEffect,
-  useState,
-  useCallback,
-  PropsWithChildren,
-} from "react";
+import { useEffect, useState, useCallback, PropsWithChildren } from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 
 const CamContainer = styled.div`
+  position: relative;
   display: inline-flex;
   height: 100%;
   width: min-content;
@@ -41,7 +35,7 @@ export const Camera = ({ children }: PropsWithChildren) => {
   }, [handleDevices]);
 
   console.group("Webcam");
-  console.log(devices.map((device) => device.toJSON()));
+  devices.map((device) => device.toJSON()).forEach(console.log);
   console.groupEnd();
 
   return (
