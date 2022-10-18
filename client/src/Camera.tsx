@@ -9,7 +9,7 @@ import {
 import Webcam from "react-webcam";
 import styled from "styled-components";
 
-const MainCamContainer = styled.div`
+const CamContainer = styled.div`
   display: inline-flex;
   height: 100%;
   width: min-content;
@@ -27,7 +27,7 @@ const Placeholder = styled.div`
 /**
  * Container for main webcam display, which passes the
  */
-export const MainCamera = ({ children }: PropsWithChildren) => {
+export const Camera = ({ children }: PropsWithChildren) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
 
   const handleDevices = useCallback(
@@ -45,7 +45,7 @@ export const MainCamera = ({ children }: PropsWithChildren) => {
   console.groupEnd();
 
   return (
-    <MainCamContainer>
+    <CamContainer className="MainCamera">
       {devices.length ? (
         <Webcam
           height="100%"
@@ -61,6 +61,6 @@ export const MainCamera = ({ children }: PropsWithChildren) => {
       )}
 
       {devices.length ? children : []}
-    </MainCamContainer>
+    </CamContainer>
   );
 };

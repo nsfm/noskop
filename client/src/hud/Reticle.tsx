@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 import { Illustration, Ellipse, Shape } from "react-zdog";
 
 import { HUDElement } from "./HUDElement";
@@ -11,6 +12,14 @@ interface ReticleState {
   parallax: number;
   zoom: number;
 }
+
+const StyledReticle = styled(HUDElement)`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.7;
+`;
 
 /**
  * Focal point of the main camera image
@@ -37,7 +46,8 @@ export const Reticle = () => {
   });
 
   return (
-    <HUDElement
+    <StyledReticle
+      className="Reticle"
       width={state.diameter * state.zoom * 1.25}
       height={(state.diameter + state.parallax) * state.zoom}
     >
@@ -62,6 +72,6 @@ export const Reticle = () => {
           />
         </Shape>
       </Illustration>
-    </HUDElement>
+    </StyledReticle>
   );
 };

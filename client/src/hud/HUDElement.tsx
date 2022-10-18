@@ -6,4 +6,5 @@ export const HUDElement = styled.div<{
 }>`
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;
+  z-index: 5;
 `;
