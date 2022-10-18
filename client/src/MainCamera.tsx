@@ -1,4 +1,11 @@
-import React from "react";
+import {
+  useRef,
+  useLayoutEffect,
+  useEffect,
+  useState,
+  useCallback,
+  PropsWithChildren,
+} from "react";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 
@@ -10,19 +17,26 @@ const MainCamContainer = styled.div`
   background-color: #000000;
 `;
 
-/**
- * Container for main webcam display
- */
-export const MainCamera = () => {
-  const [devices, setDevices] = React.useState<MediaDeviceInfo[]>([]);
+const Placeholder = styled.div`
+  display: inline-flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: cornsilk;
+`;
 
-  const handleDevices = React.useCallback(
+/**
+ * Container for main webcam display, which passes the
+ */
+export const MainCamera = ({ children }: PropsWithChildren) => {
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+
+  const handleDevices = useCallback(
     (mediaDevices: MediaDeviceInfo[]) =>
       setDevices(mediaDevices.filter(({ kind }) => kind === "videoinput")),
     [setDevices]
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices);
   }, [handleDevices]);
 
@@ -43,8 +57,10 @@ export const MainCamera = () => {
           }}
         />
       ) : (
-        <div>Waiting for a webcam...</div>
+        <Placeholder>Waiting for a webcam...</Placeholder>
       )}
+
+      {devices.length ? children : []}
     </MainCamContainer>
   );
 };

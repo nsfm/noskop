@@ -8,6 +8,8 @@ This project allows the operator to command a computerized microscope using a Pl
 
 > And the belief that many who possess microscopes are deterred from attempting any branch of original investigation solely by the great difficulty they experience surmounting elementary detail and mere mechanical operations. **Lionel Smith Beale**, _How To Work With The Microscope_, 1857
 
+In other words, a microscope should be fun and easy to use.
+
 ### How?
 
 A 3D printer motherboard drives stepper motors coupled to the scope's stage controls.

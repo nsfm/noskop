@@ -3,7 +3,7 @@ import { MouseEvent } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
 import { MainCamera } from "./MainCamera";
-import { HUD, Reticle, ControllerConnection } from "./hud";
+import { Reticle, ControllerConnection } from "./hud";
 import { ControllerContext, controller } from "./Controller";
 
 const MainContainer = styled.div`
@@ -15,6 +15,12 @@ const MainContainer = styled.div`
   height: 100vh;
   overflow: hidden;
   background-color: #000000;
+`;
+
+const PositionedReticle = styled(Reticle)`
+  position: absolute;
+  left: 50%;
+  top: 50%;
 `;
 
 /**
@@ -39,11 +45,10 @@ export const Noskop = () => {
     <ControllerContext.Provider value={controller}>
       <FullScreen handle={fullscreen}>
         <MainContainer onClick={toggleFullscreen}>
-          <MainCamera />
-          <HUD>
-            <Reticle />
+          <MainCamera>
+            <PositionedReticle />
             <ControllerConnection />
-          </HUD>
+          </MainCamera>
         </MainContainer>
       </FullScreen>
     </ControllerContext.Provider>

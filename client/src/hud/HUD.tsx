@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
 import styled from "styled-components";
-import { Illustration } from "react-zdog";
 
 const HUDContainer = styled.div`
   position: absolute;
@@ -14,14 +13,8 @@ const HUDContainer = styled.div`
 `;
 
 /**
- * Container for rendered svg HUD elements
+ * Container for variuos HUD elements
  */
 export const HUD = ({ children }: PropsWithChildren) => {
-  return (
-    <HUDContainer>
-      <Illustration element="svg" zoom={15}>
-        {children}
-      </Illustration>
-    </HUDContainer>
-  );
+  return <HUDContainer>{children}</HUDContainer>;
 };

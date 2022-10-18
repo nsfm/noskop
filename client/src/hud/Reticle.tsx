@@ -1,18 +1,19 @@
 import React from "react";
-import { Ellipse, Shape } from "react-zdog";
+import { Illustration, Ellipse, Shape } from "react-zdog";
 
+import { HUDElement } from "./HUDElement";
 import { ControllerContext } from "../Controller";
 
 interface ReticleState {
-  offset: { x: number; y: number };
   opacity: number;
   diameter: number;
   thickness: number;
   parallax: number;
+  zoom: number;
 }
 
 /**
- * Represents the focal point of the main camera image. Manipulators should be centered on this point.
+ * Focal point of the main camera image
  */
 export const Reticle = () => {
   const controller = React.useContext(ControllerContext);
@@ -28,32 +29,39 @@ export const Reticle = () => {
   console.log(`Reticle: ${direction} x ${magnitude}`);
 
   const [state] = React.useState<ReticleState>({
-    offset: { x: 0, y: 0 },
     opacity: 0.7,
     diameter: 5,
     thickness: 0.25,
     parallax: 0.1,
+    zoom: 15,
   });
 
   return (
-    <Shape
-      rotate={{
-        y: Math.sin(direction),
-        x: Math.cos(magnitude),
-      }}
-      stroke={0}
+    <HUDElement
+      width={state.diameter * state.zoom * 1.25}
+      height={(state.diameter + state.parallax) * state.zoom}
     >
-      <Ellipse
-        stroke={state.thickness}
-        diameter={state.diameter}
-        color="orange"
-      />
-      <Ellipse
-        stroke={state.thickness}
-        diameter={state.diameter}
-        color="blue"
-        translate={{ x: magnitude, y: state.parallax, z: -1 }}
-      />
-    </Shape>
+      <Illustration element="svg" zoom={state.zoom}>
+        <Shape
+          rotate={{
+            y: Math.sin(direction),
+            x: Math.cos(magnitude),
+          }}
+          stroke={0}
+        >
+          <Ellipse
+            stroke={state.thickness}
+            diameter={state.diameter}
+            color="orange"
+          />
+          <Ellipse
+            stroke={state.thickness}
+            diameter={state.diameter}
+            color="blue"
+            translate={{ x: magnitude, y: state.parallax, z: -1 }}
+          />
+        </Shape>
+      </Illustration>
+    </HUDElement>
   );
 };
