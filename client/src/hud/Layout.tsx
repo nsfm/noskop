@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
 export const HUDLayout = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
   z-index: 10;
+  position: absolute;
   top: 0;
-  margin: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr 30% 1fr 1fr;

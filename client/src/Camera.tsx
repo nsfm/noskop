@@ -9,14 +9,13 @@ const CamContainer = styled.div`
   width: min-content;
   overflow: hidden;
   background-color: #000000;
-  display: flex;
 `;
 
 const Placeholder = styled.div`
   display: inline-flex;
-  height: 100vh;
+  height: 100%;
   width: 100vw;
-  background-color: cornsilk;
+  background-color: lightpink;
 `;
 
 /**
@@ -40,7 +39,7 @@ export const Camera = ({ children }: PropsWithChildren) => {
   console.groupEnd();
 
   return (
-    <CamContainer className="MainCamera">
+    <CamContainer className="Camera">
       {devices.length ? (
         <Webcam
           height="100%"

@@ -11,34 +11,16 @@ interface InventoryState {
   zoom: number;
 }
 
-interface StyledInventoryProps {
-  width: number;
-  height: number;
-}
-
-const StyledInventory = styled(RenderedElement)``;
-
-const StyledInventoryContainer = styled.div<StyledInventoryProps>`
+const StyledInventory = styled(RenderedElement)`
   overflow: hidden;
-  grid-column: 1 / span 2;
-  grid-row: 5 / span 2;
-  width: 100%;
-  height: 100%;
+  grid-column: 1;
+  grid-row: 6;
   display: flex;
-  justify-content: center;
-  align-items: center;
-
-  div > div > svg {
-    overflow: visible;
-    margin-left: ${({ width }) => `-${width / 2 - 15}px`};
-    margin-top: 50%;
-  }
-    
-  }
+  align-items: flex-end;
+  justify-content: left;
 `;
 
 /**
- * Focal point of the main camera image
  */
 export const Inventory = () => {
   const controller = useContext(ControllerContext);
@@ -59,38 +41,32 @@ export const Inventory = () => {
     zoom: 15,
   });
 
+  const outerDiameter = state.diameter + state.diameter / 2;
+  const maxDimension = (outerDiameter / 2 + state.thickness) * state.zoom;
   return (
-    <StyledInventoryContainer
-      width={
-        (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
-      }
-      height={
-        (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
-      }
-    >
-      <StyledInventory
-        width={
-          (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
-        }
-        height={
-          (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
-        }
-      >
-        <Illustration element="svg" zoom={state.zoom}>
-          <Shape stroke={0}>
-            <Ellipse
-              stroke={state.thickness}
-              diameter={state.diameter}
-              color="orange"
-            />
-            <Ellipse
-              stroke={state.thickness / 4}
-              diameter={state.diameter + state.diameter / 2}
-              color="orange"
-            />
-          </Shape>
-        </Illustration>
-      </StyledInventory>
-    </StyledInventoryContainer>
+    <StyledInventory width={maxDimension} height={maxDimension}>
+      <Illustration element="svg" zoom={state.zoom}>
+        <Shape
+          stroke={0}
+          translate={{
+            x: -state.diameter / 2 - state.thickness,
+            y: state.diameter / 2 + state.thickness,
+          }}
+        >
+          <Ellipse
+            stroke={state.thickness}
+            diameter={state.diameter}
+            color="orange"
+            quarters={1}
+          />
+          <Ellipse
+            stroke={state.thickness / 4}
+            diameter={outerDiameter}
+            color="orange"
+            quarters={1}
+          />
+        </Shape>
+      </Illustration>
+    </StyledInventory>
   );
 };
