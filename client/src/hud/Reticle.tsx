@@ -14,10 +14,13 @@ interface ReticleState {
 }
 
 const StyledReticle = styled(RenderedElement)`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  grid-column: 3;
+  grid-row: 3 / span 2;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  width: 100%;
+  height: 100%;
   opacity: 0.7;
 `;
 

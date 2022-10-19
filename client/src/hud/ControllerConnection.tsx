@@ -12,13 +12,11 @@ const Button = styled.button`
 `;
 
 const Position = styled.div`
-  position: absolute;
   display: flex;
+  justify-content: center;
   align-items: center;
-  top: 10%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0.7;
+  grid-column: 3;
+  grid-row: 1;
 `;
 
 interface ControllerConnectionState {
