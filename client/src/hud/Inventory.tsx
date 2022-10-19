@@ -11,12 +11,30 @@ interface InventoryState {
   zoom: number;
 }
 
-const StyledInventory = styled(RenderedElement)`
-  position: absolute;
-  bottom: 0%;
-  left: 0%;
-  transform: translate(-60%, 60%);
-  opacity: 0.5;
+interface StyledInventoryProps {
+  width: number;
+  height: number;
+}
+
+const StyledInventory = styled(RenderedElement)``;
+
+const StyledInventoryContainer = styled.div<StyledInventoryProps>`
+  overflow: hidden;
+  grid-column: 1 / span 2;
+  grid-row: 5 / span 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  div > div > svg {
+    overflow: visible;
+    margin-left: ${({ width }) => `-${width / 2 - 15}px`};
+    margin-top: 50%;
+  }
+    
+  }
 `;
 
 /**
@@ -42,8 +60,7 @@ export const Inventory = () => {
   });
 
   return (
-    <StyledInventory
-      className="Inventory"
+    <StyledInventoryContainer
       width={
         (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
       }
@@ -51,20 +68,29 @@ export const Inventory = () => {
         (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
       }
     >
-      <Illustration element="svg" zoom={state.zoom}>
-        <Shape stroke={0}>
-          <Ellipse
-            stroke={state.thickness}
-            diameter={state.diameter}
-            color="orange"
-          />
-          <Ellipse
-            stroke={state.thickness / 4}
-            diameter={state.diameter + state.diameter / 2}
-            color="orange"
-          />
-        </Shape>
-      </Illustration>
-    </StyledInventory>
+      <StyledInventory
+        width={
+          (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
+        }
+        height={
+          (state.diameter + state.diameter / 2 + state.thickness) * state.zoom
+        }
+      >
+        <Illustration element="svg" zoom={state.zoom}>
+          <Shape stroke={0}>
+            <Ellipse
+              stroke={state.thickness}
+              diameter={state.diameter}
+              color="orange"
+            />
+            <Ellipse
+              stroke={state.thickness / 4}
+              diameter={state.diameter + state.diameter / 2}
+              color="orange"
+            />
+          </Shape>
+        </Illustration>
+      </StyledInventory>
+    </StyledInventoryContainer>
   );
 };

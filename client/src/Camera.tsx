@@ -9,6 +9,7 @@ const CamContainer = styled.div`
   width: min-content;
   overflow: hidden;
   background-color: #000000;
+  display: flex;
 `;
 
 const Placeholder = styled.div`
