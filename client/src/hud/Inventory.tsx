@@ -81,7 +81,6 @@ export const Inventory = () => {
             <Ellipse
               stroke={state.thickness}
               diameter={state.diameter}
-              // quarters={1}
               color="orange"
             />
             <Ellipse
