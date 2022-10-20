@@ -6,6 +6,8 @@
   "license": "GPL-3.0",
   "private": false,
   "dependencies": {
+    "@blueprintjs/core": "^4.11.4",
+    "@blueprintjs/icons": "^4.8.0",
     "dualsense-ts": "5.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

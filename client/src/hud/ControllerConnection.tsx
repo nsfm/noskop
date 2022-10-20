@@ -1,14 +1,17 @@
 import { useEffect, useState, useContext } from "react";
 import { Illustration, Ellipse } from "react-zdog";
+import { Button as BlueprintButton } from "@blueprintjs/core";
 import styled from "styled-components";
 
 import { RenderedElement } from "./RenderedElement";
 import { ControllerContext, requestPermission } from "../Controller";
 
-const Button = styled.button`
-  display: inline-block;
-  vertical-align: middle;
-  margin-left: 5px;
+const Button = styled(BlueprintButton)`
+  opacity: 0.5;
+
+  &:hover {
+    opacity: 0.9;
+  }
 `;
 
 const Position = styled.div`
@@ -48,26 +51,35 @@ export const ControllerConnection = () => {
     zoom: 15,
   });
 
+  const icon = (
+    <RenderedElement
+      width={(state.diameter + state.thickness) * state.zoom}
+      height={(state.diameter + state.thickness) * state.zoom}
+    >
+      <Illustration element="svg" zoom={state.zoom}>
+        <Ellipse
+          rotate={{ y: rotation }}
+          stroke={state.thickness}
+          diameter={state.diameter}
+          color={connected ? "orange" : "blue"}
+          translate={{ x: 0, y: 0 }}
+        />
+      </Illustration>
+    </RenderedElement>
+  );
+
   return (
     <Position>
-      <RenderedElement
-        width={(state.diameter + state.thickness) * state.zoom}
-        height={(state.diameter + state.thickness) * state.zoom}
-      >
-        <Illustration element="svg" zoom={state.zoom}>
-          <Ellipse
-            rotate={{ y: rotation }}
-            stroke={state.thickness}
-            diameter={state.diameter}
-            color={connected ? "orange" : "blue"}
-            translate={{ x: 0, y: 0 }}
-          />
-        </Illustration>
-      </RenderedElement>
       {connected ? (
-        ""
+        icon
       ) : (
-        <Button onClick={requestPermission}>Select&nbsp;Controller</Button>
+        <Button
+          onClick={requestPermission}
+          large={true}
+          outlined={true}
+          intent="warning"
+          text="select controller"
+        />
       )}
     </Position>
   );

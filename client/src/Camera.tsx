@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, PropsWithChildren } from "react";
+import { NonIdealState } from "@blueprintjs/core";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 
@@ -11,11 +12,11 @@ const CamContainer = styled.div`
   background-color: #000000;
 `;
 
-const Placeholder = styled.div`
+const Placeholder = styled(NonIdealState)`
   display: inline-flex;
   height: 100%;
   width: 100vw;
-  background-color: lightpink;
+  background-color: #000000;
 `;
 
 /**
@@ -38,23 +39,28 @@ export const Camera = ({ children }: PropsWithChildren) => {
   devices.map((device) => device.toJSON()).forEach(console.log);
   console.groupEnd();
 
+  const validDevices = devices.filter(({ deviceId }) => deviceId !== "");
   return (
     <CamContainer className="Camera">
-      {devices.length ? (
+      {validDevices.length ? (
         <Webcam
           height="100%"
-          key={devices[devices.length - 1].deviceId}
+          key={validDevices[validDevices.length - 1].deviceId}
           audio={false}
           videoConstraints={{
-            deviceId: devices[devices.length - 1].deviceId,
+            deviceId: validDevices[validDevices.length - 1].deviceId,
             frameRate: { min: 30, ideal: 60 },
           }}
         />
       ) : (
-        <Placeholder>Waiting for a webcam...</Placeholder>
+        <Placeholder
+          icon="camera"
+          title="no video"
+          description="please connect a camera and double check permissions"
+        />
       )}
 
-      {devices.length ? children : []}
+      {validDevices.length ? children : []}
     </CamContainer>
   );
 };
