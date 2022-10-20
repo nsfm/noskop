@@ -64,7 +64,11 @@ export const ControllerConnection = () => {
           />
         </Illustration>
       </RenderedElement>
-      <Button onClick={requestPermission}>Connect&nbsp;Controller</Button>
+      {connected ? (
+        ""
+      ) : (
+        <Button onClick={requestPermission}>Select&nbsp;Controller</Button>
+      )}
     </Position>
   );
 };
