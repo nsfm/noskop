@@ -1,31 +1,32 @@
 import { useEffect, useState, useContext } from "react";
 import { Illustration, Ellipse } from "react-zdog";
-import { Button as BlueprintButton } from "@blueprintjs/core";
+import { Button as BlueprintButton, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
 
 import { RenderedElement } from "./RenderedElement";
 import { ControllerContext, requestPermission } from "../Controller";
 
 const Button = styled(BlueprintButton)`
-  opacity: 0.5;
+  opacity: 0.7;
 
   &:hover {
     opacity: 0.9;
   }
 `;
 
-const Position = styled.div`
+const Position = styled.div<{ connected: boolean }>`
+  opacity: 0.5;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  grid-column: 3;
+  justify-content: ${(props) => (props.connected ? "right" : "center")};
+  align-items: ${(props) => (props.connected ? "top" : "center")};
+  grid-column: ${(props) => (props.connected ? -2 : 3)};
   grid-row: 1;
+  padding: 1vw;
 `;
 
 interface ControllerConnectionState {
   offset: { x: number; y: number };
   opacity: number;
-  diameter: number;
   thickness: number;
   parallax: number;
   zoom: number;
@@ -34,9 +35,15 @@ interface ControllerConnectionState {
 export const ControllerConnection = () => {
   const controller = useContext(ControllerContext);
   const [connected, setConnected] = useState(controller.connection.state);
-  const [rotation, setRotation] = useState(0);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [diameter] = useState(2);
   useEffect(() => {
-    setInterval(() => setRotation((Date.now() / 2000) % Math.PI), 1000 / 30);
+    setInterval(() => {
+      setRotation({
+        y: (controller.right.analog.direction * 4) % Math.PI,
+        x: (Date.now() / 2000) % Math.PI,
+      });
+    }, 1000 / 30);
     controller.connection.on("change", ({ state }) => {
       setConnected(state);
     });
@@ -45,7 +52,6 @@ export const ControllerConnection = () => {
   const [state] = useState<ControllerConnectionState>({
     offset: { x: 0, y: 0 },
     opacity: 0.7,
-    diameter: 2,
     thickness: 0.25,
     parallax: 0.1,
     zoom: 15,
@@ -53,14 +59,14 @@ export const ControllerConnection = () => {
 
   const icon = (
     <RenderedElement
-      width={(state.diameter + state.thickness) * state.zoom}
-      height={(state.diameter + state.thickness) * state.zoom}
+      width={(diameter + state.thickness) * state.zoom}
+      height={(diameter + state.thickness) * state.zoom}
     >
       <Illustration element="svg" zoom={state.zoom}>
         <Ellipse
-          rotate={{ y: rotation }}
+          rotate={rotation}
           stroke={state.thickness}
-          diameter={state.diameter}
+          diameter={diameter}
           color={connected ? "orange" : "blue"}
           translate={{ x: 0, y: 0 }}
         />
@@ -69,9 +75,9 @@ export const ControllerConnection = () => {
   );
 
   return (
-    <Position>
+    <Position connected={connected}>
       {connected ? (
-        icon
+        <Icon icon={icon} />
       ) : (
         <Button
           onClick={requestPermission}
