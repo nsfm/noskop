@@ -7,6 +7,7 @@ export * from "./ControllerConnection";
 export * from "./GraduatedRule";
 export * from "./HUD";
 export * from "./Inventory";
+export * from "./Layout";
 export * from "./RenderedElement";
 export * from "./Reticle";
 export * from "./Rule";

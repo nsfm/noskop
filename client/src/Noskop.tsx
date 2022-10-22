@@ -5,7 +5,6 @@ import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import { Camera } from "./Camera";
 import { Reticle, ControllerConnection, Inventory } from "./hud";
 import { ControllerContext, controller } from "./Controller";
-import { HUDLayout } from "./hud/Layout";
 
 const AppContainer = styled.div`
   display: flex;
@@ -41,11 +40,9 @@ export const Noskop = () => {
       <FullScreen handle={fullscreen}>
         <AppContainer className="AppContainer">
           <Camera>
-            <HUDLayout>
-              <Reticle />
-              <ControllerConnection />
-              <Inventory />
-            </HUDLayout>
+            <Reticle />
+            <ControllerConnection />
+            <Inventory />
           </Camera>
         </AppContainer>
       </FullScreen>

@@ -16,6 +16,7 @@ declare module "react-zdog" {
     React.PropsWithChildren<{
       scene?: zdog.Anchor;
       illu?: zdog.Illustration;
+      rotate?: { x?: number; y?: number; z?: number };
       size?: unknown;
       element: "svg" | "canvas";
       zoom?: number;

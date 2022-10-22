@@ -3,6 +3,10 @@ import { NonIdealState } from "@blueprintjs/core";
 import Webcam from "react-webcam";
 import styled from "styled-components";
 
+import { HUDLayout } from "./hud";
+import { CameraConfig } from "./CameraConfig";
+import { Spinner } from "./Spinner";
+
 const CamContainer = styled.div`
   position: relative;
   display: inline-flex;
@@ -24,6 +28,7 @@ const Placeholder = styled(NonIdealState)`
  */
 export const Camera = ({ children }: PropsWithChildren) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [activeDevice, setActiveDevice] = useState<string>();
 
   const handleDevices = useCallback(
     (mediaDevices: MediaDeviceInfo[]) =>
@@ -40,6 +45,10 @@ export const Camera = ({ children }: PropsWithChildren) => {
   console.groupEnd();
 
   const validDevices = devices.filter(({ deviceId }) => deviceId !== "");
+  if (!activeDevice && validDevices.length) {
+    setActiveDevice(validDevices[validDevices.length - 1].deviceId);
+  }
+
   return (
     <CamContainer className="Camera">
       {validDevices.length ? (
@@ -48,19 +57,29 @@ export const Camera = ({ children }: PropsWithChildren) => {
           key={validDevices[validDevices.length - 1].deviceId}
           audio={false}
           videoConstraints={{
-            deviceId: validDevices[validDevices.length - 1].deviceId,
+            deviceId: activeDevice,
             frameRate: { min: 30, ideal: 60 },
           }}
         />
       ) : (
         <Placeholder
-          icon="camera"
+          icon={<Spinner />}
           title="no video"
           description="please connect a camera and double check permissions"
         />
       )}
-
-      {validDevices.length ? children : []}
+      {validDevices.length ? (
+        <HUDLayout>
+          <CameraConfig
+            activeDevice={activeDevice}
+            setActiveDevice={setActiveDevice}
+            devices={devices}
+          />
+          {children}
+        </HUDLayout>
+      ) : (
+        []
+      )}
     </CamContainer>
   );
 };
