@@ -2,8 +2,10 @@ import styled from "styled-components";
 import { MouseEvent } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
-import { Camera } from "./Camera";
+import { useConfig } from "./config";
 import { Reticle, ControllerConnection, Inventory } from "./hud";
+import { Objective } from "./mechanics";
+import { useCamera } from "./Camera";
 import { ControllerContext, controller } from "./Controller";
 
 const AppContainer = styled.div`
@@ -35,6 +37,9 @@ export const Noskop = () => {
     }
   };
 
+  const [ConfigToggle, ConfigOverlay] = useConfig();
+  const [Camera, CameraConfig] = useCamera();
+
   return (
     <ControllerContext.Provider value={controller}>
       <FullScreen handle={fullscreen}>
@@ -43,7 +48,12 @@ export const Noskop = () => {
             <Reticle />
             <ControllerConnection />
             <Inventory />
+            <ConfigToggle />
           </Camera>
+          <ConfigOverlay>
+            <CameraConfig />
+            <Objective />
+          </ConfigOverlay>
         </AppContainer>
       </FullScreen>
     </ControllerContext.Provider>

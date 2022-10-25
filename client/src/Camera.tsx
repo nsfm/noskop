@@ -1,4 +1,10 @@
-import { useEffect, useState, useCallback, PropsWithChildren } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  PropsWithChildren,
+  useMemo,
+} from "react";
 import { NonIdealState } from "@blueprintjs/core";
 import Webcam from "react-webcam";
 import styled from "styled-components";
@@ -26,7 +32,7 @@ const Placeholder = styled(NonIdealState)`
 /**
  * Container for main webcam display, which passes the
  */
-export const Camera = ({ children }: PropsWithChildren) => {
+export const useCamera = () => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [activeDevice, setActiveDevice] = useState<string>();
 
@@ -40,46 +46,44 @@ export const Camera = ({ children }: PropsWithChildren) => {
     navigator.mediaDevices.enumerateDevices().then(handleDevices);
   }, [handleDevices]);
 
-  console.group("Webcam");
-  devices.map((device) => device.toJSON()).forEach(console.log);
-  console.groupEnd();
+  useEffect(() => {
+    const validDevices = devices.filter(({ deviceId }) => deviceId !== "");
+    if (!activeDevice && validDevices.length) {
+      setActiveDevice(validDevices[validDevices.length - 1].deviceId);
+    }
+    if (activeDevice && !validDevices.length) {
+      setActiveDevice(undefined);
+    }
+  }, [devices, activeDevice]);
 
-  const validDevices = devices.filter(({ deviceId }) => deviceId !== "");
-  if (!activeDevice && validDevices.length) {
-    setActiveDevice(validDevices[validDevices.length - 1].deviceId);
-  }
-
-  return (
-    <CamContainer className="Camera">
-      {validDevices.length ? (
-        <Webcam
-          height="100%"
-          key={validDevices[validDevices.length - 1].deviceId}
-          audio={false}
-          videoConstraints={{
-            deviceId: activeDevice,
-            frameRate: { min: 30, ideal: 60 },
-          }}
-        />
-      ) : (
-        <Placeholder
-          icon={<Spinner />}
-          title="no video"
-          description="please connect a camera and double check permissions"
-        />
-      )}
-      {validDevices.length ? (
-        <HUDLayout>
-          <CameraConfig
-            activeDevice={activeDevice}
-            setActiveDevice={setActiveDevice}
-            devices={devices}
+  return [
+    ({ children }: PropsWithChildren) => (
+      <CamContainer className="Camera">
+        {activeDevice ? (
+          <Webcam
+            height="100%"
+            audio={false}
+            videoConstraints={{
+              deviceId: activeDevice,
+              frameRate: { min: 30, ideal: 60 },
+            }}
           />
-          {children}
-        </HUDLayout>
-      ) : (
-        []
-      )}
-    </CamContainer>
-  );
+        ) : (
+          <Placeholder
+            icon={<Spinner />}
+            title="no video"
+            description="please connect a camera and double check permissions"
+          />
+        )}
+        {activeDevice ? <HUDLayout>{children}</HUDLayout> : []}
+      </CamContainer>
+    ),
+    () => (
+      <CameraConfig
+        activeDevice={activeDevice}
+        setActiveDevice={setActiveDevice}
+        devices={devices}
+      />
+    ),
+  ];
 };

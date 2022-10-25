@@ -1133,6 +1133,16 @@
     react-popper "^2.2.4"
     tslib "~2.3.1"
 
+"@blueprintjs/select@^4.8.4":
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/select/-/select-4.8.4.tgz#fda947436657d882942446d7d1e9d627b203a230"
+  integrity sha512-U7aM2losi6RFccRf1pPMfW8kTH6X6bbTGxyRSuozteFrv3JLRh56FB+HyEr1dlTV33xd9V3X8wKa7Hv5e/1Qhg==
+  dependencies:
+    "@blueprintjs/core" "^4.11.4"
+    "@blueprintjs/popover2" "^1.7.4"
+    classnames "^2.3.2"
+    tslib "~2.3.1"
+
 "@csstools/normalize.css@*":
   version "12.0.0"
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-12.0.0.tgz#a9583a75c3f150667771f30b60d9f059473e62c4"

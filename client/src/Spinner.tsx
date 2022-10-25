@@ -21,7 +21,7 @@ export const Spinner = () => {
       width={(radius * 4 + thickness) * zoom}
       height={(radius * 4 + thickness) * zoom}
     >
-      <Illustration element="svg" rotate={{ z: rotation }} zoom={zoom}>
+      <Illustration element="canvas" rotate={{ z: rotation }} zoom={zoom}>
         <Polygon
           sides={5}
           rotate={{ x: Math.cos(rotation) }}

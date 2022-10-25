@@ -1,17 +1,4 @@
-import {
-  Menu,
-  MenuItem,
-  MenuDivider,
-  Card as BCard,
-  Elevation,
-} from "@blueprintjs/core";
-import styled from "styled-components";
-
-const Card = styled(BCard)`
-  opacity: 0.5;
-  grid-column: -2;
-  grid-row: 1;
-`;
+import { Menu, MenuItem, MenuDivider, FormGroup } from "@blueprintjs/core";
 
 type ConfigProps = {
   activeDevice?: string;
@@ -26,7 +13,7 @@ export const CameraConfig = ({
 }: ConfigProps) => {
   const validDevices = devices.filter(({ deviceId }) => deviceId !== "");
   return (
-    <Card elevation={Elevation.TWO}>
+    <FormGroup>
       <Menu>
         <MenuDivider title="camera" />
         {validDevices.map(({ label, deviceId }) => (
@@ -38,6 +25,6 @@ export const CameraConfig = ({
           />
         ))}
       </Menu>
-    </Card>
+    </FormGroup>
   );
 };
