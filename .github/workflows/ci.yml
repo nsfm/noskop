@@ -104,8 +104,8 @@ jobs:
       uses: github/codeql-action/analyze@v2
 
   release:
-    needs: [build, lint, test, analyze]
-    if: (github.ref == 'refs/heads/main') && needs.lint.result == 'success' && needs.test.result == 'success' && needs.analyze.result == 'success'
+    needs: [build, lint, analyze]
+    if: (github.ref == 'refs/heads/main') && needs.lint.result == 'success' && needs.analyze.result == 'success'
     name: Tag & Release
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +117,7 @@ jobs:
       - name: Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
           registry-url: https://registry.npmjs.org/
           cache: 'yarn'
 
@@ -144,6 +144,11 @@ jobs:
           prerelease: true
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Deploy to noskop.com
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build
 
   dependabot:
     needs: [build, lint, test, analyze]
