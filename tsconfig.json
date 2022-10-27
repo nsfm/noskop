@@ -1,31 +1,26 @@
 {
-  "include": ["src/**/*"],
   "compilerOptions": {
-    "strict": true,
-    "alwaysStrict": true,
-    "module": "ESNext",
-    "target": "ES2020",
-    "moduleResolution": "Node",
-    "lib": ["ES2021", "DOM"],
-    "incremental": true,
-    "declaration": true,
-    "declarationMap": true,
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
-    "baseUrl": "src",
-    "rootDir": ".",
-    "outDir": "dist",
-    "sourceMap": true
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
-  "ts-node": {
-    "esm": true,
-    "transpileOnly": false,
-    "files": true
-  },
-  "lib": ["esnext"]
+  "include": [
+    "src/**/*"
+  ]
 }

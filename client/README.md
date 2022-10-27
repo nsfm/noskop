@@ -1,1 +1,0 @@
-# Noskop Client
