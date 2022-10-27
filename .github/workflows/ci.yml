@@ -135,7 +135,7 @@ jobs:
           folder: build
 
   dependabot:
-    needs: [build, lint, test, analyze]
+    needs: [lint, test, analyze]
     runs-on: ubuntu-latest
     if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request' && needs.lint.result == 'success' && needs.test.result == 'success' && needs.analyze.result == 'success'
     steps:
