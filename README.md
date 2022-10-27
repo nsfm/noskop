@@ -14,15 +14,15 @@ _It's not complete, but you can [check it out at noskop.com](https://noskop.com)
 
 ### Why?
 
-> The want of some concise, yet sufficiently comprehensive, popular account of the Microscope, both as regards the management and manipulation of the instrument, and the varied wonders and hidden realms of beauty that are disclosed and developed by its aid. **Jabez Hogg**, _The Microscope: Its History, Construction, and Application_, 1854
+> The want of some concise, yet sufficiently comprehensive, popular account of the Microscope, both as regards the management and manipulation of the instrument, and the varied wonders and hidden realms of beauty that are disclosed and developed by its aid.<br/>**Jabez Hogg**, _The Microscope: Its History, Construction, and Application_, 1854
 
-> And the belief that many who possess microscopes are deterred from attempting any branch of original investigation solely by the great difficulty they experience surmounting elementary detail and mere mechanical operations. **Lionel Smith Beale**, _How To Work With The Microscope_, 1857
+> And the belief that many who possess microscopes are deterred from attempting any branch of original investigation solely by the great difficulty they experience surmounting elementary detail and mere mechanical operations.<br/>**Lionel Smith Beale**, _How To Work With The Microscope_, 1857
 
 In other words,
 
-> Maybe folks would appreciate microscopes if they were more fun, and easy to use. **Lionel & Jabez**, _probably_, circa 1850
+> Maybe folks would appreciate microscopes if they were more fun, and easy to use.<br/>**Lionel & Jabez**, _probably_, circa 1850
 
-So, ideally, it would be like there was _no scope_ at all.
+Ideally, it would be like there was _no scope_ at all.
 
 ### But where do I get the microscope?
 
