@@ -88,7 +88,7 @@ jobs:
       uses: github/codeql-action/analyze@v2
 
   release:
-    needs: [build, lint, analyze]
+    needs: [lint, analyze]
     if: (github.ref == 'refs/heads/main') && needs.lint.result == 'success' && needs.analyze.result == 'success'
     name: Tag & Release
     runs-on: ubuntu-latest
