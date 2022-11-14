@@ -1111,13 +1111,13 @@
     react-transition-group "^4.4.5"
     tslib "~2.3.1"
 
-"@blueprintjs/icons@^4.8.0":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-4.8.0.tgz#376cc9500475695a776d4bcac6b38a07eb440916"
-  integrity sha512-odvkqqbryiaRU5w914c42PgqaEVB/XxTRCH1/fieeACuJYnC2KOLSU1IQOathg44L3PrB4xADhg+gZ6YhXR/4Q==
+"@blueprintjs/icons@^4.10.1", "@blueprintjs/icons@^4.8.0":
+  version "4.10.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-4.10.1.tgz#55e7d497da83b2cd56b18472325c41aa9ce6e9af"
+  integrity sha512-VkEa+tzi2wZF51D2PmuKVl3krEuAudvpR8ziDQiXBbq9DPlN3Y+HrCJQzZ8LX7HtSbDp7v8k6f5/1T1ubH96SQ==
   dependencies:
     change-case "^4.1.2"
-    classnames "^2.3.2"
+    classnames "^2.3.1"
     tslib "~2.3.1"
 
 "@blueprintjs/popover2@^1.7.4":
@@ -3230,7 +3230,7 @@ cjs-module-lexer@^1.0.0:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.2.2.tgz#9f84ba3244a512f3a54e5277e8eef4c489864e40"
   integrity sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==
 
-classnames@^2.3.2:
+classnames@^2.3.1, classnames@^2.3.2:
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.2.tgz#351d813bf0137fcc6a76a16b88208d2560a0d924"
   integrity sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==
