@@ -2,10 +2,12 @@ import styled from "styled-components";
 import { MouseEvent } from "react";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 
+import { SerialProvider } from "./Serial";
 import { useConfig } from "./config";
 import { Reticle, ControllerConnection, Inventory } from "./hud";
 import { Objective } from "./mechanics";
 import { useCamera } from "./Camera";
+import { SerialConfig } from "./SerialConfig";
 import { ControllerContext, controller } from "./Controller";
 
 const AppContainer = styled.div`
@@ -42,20 +44,23 @@ export const Noskop = () => {
 
   return (
     <ControllerContext.Provider value={controller}>
-      <FullScreen handle={fullscreen}>
-        <AppContainer className="AppContainer">
-          <Camera>
-            <Reticle />
-            <ControllerConnection />
-            <Inventory />
-            <ConfigToggle />
-          </Camera>
-          <ConfigOverlay>
-            <CameraConfig />
-            <Objective />
-          </ConfigOverlay>
-        </AppContainer>
-      </FullScreen>
+      <SerialProvider>
+        <FullScreen handle={fullscreen}>
+          <AppContainer className="AppContainer">
+            <Camera>
+              <Reticle />
+              <ControllerConnection />
+              <Inventory />
+              <ConfigToggle />
+            </Camera>
+            <ConfigOverlay>
+              <CameraConfig />
+              <SerialConfig />
+              <Objective />
+            </ConfigOverlay>
+          </AppContainer>
+        </FullScreen>
+      </SerialProvider>
     </ControllerContext.Provider>
   );
 };

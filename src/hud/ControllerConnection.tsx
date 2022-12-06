@@ -44,9 +44,7 @@ export const ControllerConnection = () => {
         x: (Date.now() / 2000) % Math.PI,
       });
     }, 1000 / 30);
-    controller.connection.on("change", ({ state }) => {
-      setConnected(state);
-    });
+    controller.connection.on("change", ({ state }) => setConnected(state));
   }, []);
 
   const [state] = useState<ControllerConnectionState>({
