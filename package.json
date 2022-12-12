@@ -10,7 +10,7 @@
     "@blueprintjs/icons": "^4.8.0",
     "@blueprintjs/popover2": "^1.7.4",
     "@blueprintjs/select": "^4.8.4",
-    "dualsense-ts": "5.0.4",
+    "dualsense-ts": "5.0.27",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-full-screen": "^1.1.1",
