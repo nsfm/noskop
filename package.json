@@ -38,7 +38,7 @@
     "@types/zdog": "^1.1.2",
     "barrelsby": "^2.5.1",
     "react-is": ">=16.8.0",
-    "typescript": "^4.4.2"
+    "typescript": "^4.9.4"
   },
   "scripts": {
     "prestart": "yarn barrels",
