@@ -4016,10 +4016,10 @@ dotenv@^10.0.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-10.0.0.tgz#3d4227b8fb95f81096cdd2b66653fb2c7085ba81"
   integrity sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==
 
-dualsense-ts@5.0.4:
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-5.0.4.tgz#5995c70bc7a22fa65f1085c030e97a42abd69630"
-  integrity sha512-UosocDUNklVOMcD6QxFJolB4DHk1SRS1MdTbg4Q797zdqTgLr+1Ymf8C+q49lLMNMouOI756VEtw5s9/Jw01xw==
+dualsense-ts@5.1.8:
+  version "5.1.8"
+  resolved "https://registry.yarnpkg.com/dualsense-ts/-/dualsense-ts-5.1.8.tgz#e879d15eb02b86cbe5dd1d71a8c379da73e56e69"
+  integrity sha512-3ybIAR4/lk++agMZwKC07jCnCKF+0kpOwDHZh6+mbtfuSZCm0jy526WyrAmOcFqU5JgmFIoAzrO1418jF6j4MA==
 
 duplexer@^0.1.2:
   version "0.1.2"

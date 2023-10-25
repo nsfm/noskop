@@ -44,6 +44,7 @@ export const SerialContext = createContext<SerialContextValue>({
 export const useSerial = () => useContext(SerialContext);
 
 interface SerialProviderProps {}
+
 export const SerialProvider = ({
   children,
 }: PropsWithChildren<SerialProviderProps>) => {
