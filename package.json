@@ -49,6 +49,7 @@
     "build": "react-scripts build",
     "lint": "eslint src",
     "test": "jest --forceExit",
+    "coverage": "jest --coverage --forceExit",
     "eject": "react-scripts eject",
     "barrels": "barrelsby --directory=src --delete --location=below --name='index.tsx' --exclude='.d.ts' --exclude='spec.ts$' --input-type=module"
   },
