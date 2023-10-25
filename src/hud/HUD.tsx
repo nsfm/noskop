@@ -12,9 +12,7 @@ const HUDContainer = styled.div`
   overflow: hidden;
 `;
 
-/**
- * Container for variuos HUD elements
- */
+/** Container for various HUD elements */
 export const HUD = ({ children }: PropsWithChildren) => {
   return <HUDContainer>{children}</HUDContainer>;
 };
