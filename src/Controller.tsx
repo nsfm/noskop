@@ -1,10 +1,10 @@
 import React from "react";
-import { Dualsense, WebHIDProvider } from "dualsense-ts";
+import { Dualsense, HIDProvider, WebHIDProvider } from "dualsense-ts";
+
+const isWebHID = (provider: HIDProvider): provider is WebHIDProvider => ('getRequest' in provider)
 
 export const controller = new Dualsense();
-export const requestPermission = (
-  controller.hid.provider as WebHIDProvider
-).getRequest();
+export const requestPermission = isWebHID(controller.hid.provider) ? controller.hid.provider.getRequest() : () => console.log('WebHID is unavailable');
 
 export const ControllerContext = React.createContext(controller);
 ControllerContext.displayName = "ControllerContext";
