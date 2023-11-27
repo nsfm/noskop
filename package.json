@@ -7,7 +7,7 @@
   "private": false,
   "dependencies": {
     "@blueprintjs/core": "^5.6.0",
-    "@blueprintjs/icons": "^5.4.0",
+    "@blueprintjs/icons": "^5.4.1",
     "@blueprintjs/popover2": "^2.0.17",
     "@blueprintjs/select": "^5.0.17",
     "dualsense-ts": "5.1.8",
