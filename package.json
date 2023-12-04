@@ -36,7 +36,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/w3c-web-serial": "^1.0.6",
     "@types/zdog": "^1.1.7",
-    "barrelsby": "^2.5.1",
+    "barrelsby": "^2.8.1",
     "prettier": "^3.1.0",
     "react-is": ">=16.8.0",
     "typescript": "^4.4.2",
