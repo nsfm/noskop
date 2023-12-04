@@ -32,7 +32,7 @@
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
     "@types/react": "^18.2.35",
-    "@types/react-dom": "^18.2.15",
+    "@types/react-dom": "^18.2.17",
     "@types/styled-components": "^5.1.26",
     "@types/w3c-web-serial": "^1.0.6",
     "@types/zdog": "^1.1.7",
