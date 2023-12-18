@@ -16,7 +16,7 @@
     "react-full-screen": "^1.1.1",
     "react-scripts": "5.0.1",
     "react-webcam": "^7.2.0",
-    "react-zdog": "^1.0.11",
+    "react-zdog": "^1.2.2",
     "styled-components": "^6.1.1",
     "web-vitals": "^3.5.0",
     "zdog": "^1.1.3"
