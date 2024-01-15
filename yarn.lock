@@ -1128,21 +1128,21 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blueprintjs/colors@^5.0.7":
-  version "5.0.7"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/colors/-/colors-5.0.7.tgz#1997a0086474cae8fe3b2699c679b337f5a6a71c"
-  integrity sha512-JBbIowrQz/Ef8xsxlTTvVdqZXd0ePmaOXjaH6A3xZu6Ntnn4xEXjoSjxuzLno4gcE9yNxeBMrMrXGkkOu+aGPg==
+"@blueprintjs/colors@^5.0.9":
+  version "5.0.9"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/colors/-/colors-5.0.9.tgz#efc5bfe070a2721e157a0d57c110be818be35781"
+  integrity sha512-dWCw4WQ+vuXe4sp+o0owDOuqO84hCMR4mZwdBpsBPbb2eE1G1Vt91e9WH3G8/+6A8xONS8GHOAhWkiAlkr/ENg==
   dependencies:
     tslib "~2.6.2"
 
-"@blueprintjs/core@^5.6.0", "@blueprintjs/core@^5.7.1":
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.7.1.tgz#7ed18bcc3adcf8c6475d50681cf99529b82728b4"
-  integrity sha512-nbOyMTyOAMKAm8WQH161toU6H/1997yQO9hP0vVzLHNmkgpf3sMfeZW5kaZUvx1uV6yWkcJOLqz6j/knt30imQ==
+"@blueprintjs/core@^5.6.0", "@blueprintjs/core@^5.7.1", "@blueprintjs/core@^5.8.2":
+  version "5.8.2"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.8.2.tgz#06af6677fa02018bbefac0bc679f0353c5bd1256"
+  integrity sha512-reeCUMT7exH2zxA4T6aAfgK9YARE9nUkRKwZK9XgZ/sTzojB75SuaUehrTYz4hQ6HrWbWtUzhhpK4ooI8OIWJA==
   dependencies:
-    "@blueprintjs/colors" "^5.0.7"
-    "@blueprintjs/icons" "^5.4.1"
-    "@popperjs/core" "^2.11.7"
+    "@blueprintjs/colors" "^5.0.9"
+    "@blueprintjs/icons" "^5.7.0"
+    "@popperjs/core" "^2.11.8"
     classnames "^2.3.1"
     normalize.css "^8.0.1"
     react-popper "^2.3.0"
@@ -1158,12 +1158,12 @@
     classnames "^2.3.1"
     tslib "~2.6.2"
 
-"@blueprintjs/popover2@^2.0.17":
-  version "2.0.17"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/popover2/-/popover2-2.0.17.tgz#ed1fd3a6fbb0a7ae623ccb649b150a7f22a09534"
-  integrity sha512-sJTlLD9ihKUITC8xEm1lzae4IumXkwoTEu/ajUTgd3GlLyQsUSC5CdlBihX7LlA60WbuyVSE3Jbazhqw2Fud2w==
+"@blueprintjs/popover2@^2.0.23":
+  version "2.0.23"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/popover2/-/popover2-2.0.23.tgz#3123053a86504c6bfbabef5854d601014aeb6aca"
+  integrity sha512-/gzo+lWqJ1qz3zHN5BkK4GLkBtyyLLzQZ0gv6IoWC4HZza71cn8t/ge3KrjwI+KBzdZqdFL4EGtSijWYiyzXvw==
   dependencies:
-    "@blueprintjs/core" "^5.6.0"
+    "@blueprintjs/core" "^5.8.2"
     classnames "^2.3.1"
     tslib "~2.6.2"
 
@@ -1697,7 +1697,7 @@
     schema-utils "^3.0.0"
     source-map "^0.7.3"
 
-"@popperjs/core@^2.11.7":
+"@popperjs/core@^2.11.8":
   version "2.11.8"
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
