@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
-    "@babel/plugin-syntax-flow": "^7.23.3",
+    "@babel/plugin-syntax-flow": "^7.24.6",
     "@babel/plugin-transform-react-jsx": "^7.23.4",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^6.2.0",
