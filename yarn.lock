@@ -1135,13 +1135,13 @@
   dependencies:
     tslib "~2.6.2"
 
-"@blueprintjs/core@^5.10.1", "@blueprintjs/core@^5.10.4", "@blueprintjs/core@^5.10.5":
-  version "5.10.5"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.10.5.tgz#cdc993007b0e9950ef5804773e1a25b4293b7b8b"
-  integrity sha512-mvTB+Ox31nt9830hEgVOi/A53QI71hpOzV/7i3ZgzzrYAaEGgFMcwa7X0kn9PSOGfxw87nWL9VpYSirnzpC6lw==
+"@blueprintjs/core@^5.10.1", "@blueprintjs/core@^5.10.4", "@blueprintjs/core@^5.11.0":
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.11.0.tgz#0af38d0f8975656c579e6b8a31c9719fc27b1959"
+  integrity sha512-tjiiwQH0ZC0lQ58WPkKSVZda/hs0Swcn4dbK/a0EOwFXpa3e6JxBESrL+6DiQNyCHnv9I1ZaEVG2zVcvM27taA==
   dependencies:
     "@blueprintjs/colors" "^5.1.1"
-    "@blueprintjs/icons" "^5.10.0"
+    "@blueprintjs/icons" "^5.11.0"
     "@popperjs/core" "^2.11.8"
     classnames "^2.3.1"
     normalize.css "^8.0.1"
@@ -1151,7 +1151,16 @@
     tslib "~2.6.2"
     use-sync-external-store "^1.2.0"
 
-"@blueprintjs/icons@^5.10.0", "@blueprintjs/icons@^5.9.0":
+"@blueprintjs/icons@^5.11.0":
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.11.0.tgz#dafb5905a6d940be6a2bf712a9a1d7191e363f9e"
+  integrity sha512-2SyJgeol61hSaxdGrwPdzCx0cA5TEboc18oJYWQ31TZkidN3NWuH0Z4aEvugtM1+NR3W0Vcd/+1xIe5Y32pwTQ==
+  dependencies:
+    change-case "^4.1.2"
+    classnames "^2.3.1"
+    tslib "~2.6.2"
+
+"@blueprintjs/icons@^5.9.0":
   version "5.10.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.10.0.tgz#fc49e2bbaf8843fb517f36b30dcff8d0ef415a9f"
   integrity sha512-Qp9H2U2/m6+p0Lh9ACuF2O6o0uVINMFimo+EgasgGaLx8SkJsl7ApB3hYQ+iRSYlQWotnoqd4Vtzj4c7sKukHQ==
@@ -1160,12 +1169,12 @@
     classnames "^2.3.1"
     tslib "~2.6.2"
 
-"@blueprintjs/popover2@^2.1.7":
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/popover2/-/popover2-2.1.7.tgz#896d3feaefcb0ec67f4a37a5f9d83a18c2350cde"
-  integrity sha512-ekulhvHgIwgK709HI7qGzGu3nnye1jg2iNulmIyf85YkEPThZ2KnCdM0qr2BhAlB0ZwmemXnOXCj2RBMX37E0A==
+"@blueprintjs/popover2@^2.1.8":
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/popover2/-/popover2-2.1.8.tgz#412c61e78888b4036624ef3288df196488c02dea"
+  integrity sha512-T+t2GsZwO52mIeJGJQqZDfSBTLp+65JyKEygLDRG1Ms22UlFechfrECssxF8SJQKWsEn8qv7CPqxj2OVbIhI/w==
   dependencies:
-    "@blueprintjs/core" "^5.10.5"
+    "@blueprintjs/core" "^5.11.0"
     classnames "^2.3.1"
     tslib "~2.6.2"
 
