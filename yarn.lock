@@ -1116,10 +1116,10 @@
   dependencies:
     tslib "~2.6.2"
 
-"@blueprintjs/core@^5.12.0", "@blueprintjs/core@^5.13.0":
-  version "5.13.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.13.0.tgz#4c576f4047ce6f9bcf5d4c73b139d34fd26a281d"
-  integrity sha512-Gjcd2UmzF+D88BLreBbprDoKtoGy+9jbp2K4KHz2EZWlslWTeJLdGePB91Zmfw/BkW3bQNxMyBiQ9VkxYpD55A==
+"@blueprintjs/core@^5.12.0", "@blueprintjs/core@^5.13.0", "@blueprintjs/core@^5.13.1":
+  version "5.13.1"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.13.1.tgz#8d84dfb7289958930d0ace19c56e8cf3db572bcb"
+  integrity sha512-PDZ9X/xGBetwU2AqQuCDGVWZZMmt6+/BCnmoKXxsBBZIuWQuHDiKcwvb9rzup0htsA6P7KGl5aw7ocmDvZPpBw==
   dependencies:
     "@blueprintjs/colors" "^5.1.2"
     "@blueprintjs/icons" "^5.13.0"
