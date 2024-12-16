@@ -1132,10 +1132,10 @@
     tslib "~2.6.2"
     use-sync-external-store "^1.2.0"
 
-"@blueprintjs/icons@^5.11.0", "@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.15.0":
-  version "5.15.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.15.0.tgz#8ec1490e9b1caf82232218857db1632888d96437"
-  integrity sha512-5OiDY0hdQwfljfo9ynmmUBh3ibXTDuJ74WpwCakTr4hD9zGMhpzjnpEoZMfrMCsKZubGBiOFcT5riPljrDpdLw==
+"@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.15.0", "@blueprintjs/icons@^5.16.0":
+  version "5.16.0"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.16.0.tgz#e8b98878a4ff778c695b7891b22e2c2daa3d6826"
+  integrity sha512-j3jZGHSeAvdQebkDT3axvwlOoddUZQgVTR90f9RCDtA+TyvhEX9gMCOQzr7LD/BG/F4aPoONf2MSsWGkpH+Zew==
   dependencies:
     change-case "^4.1.2"
     classnames "^2.3.1"
