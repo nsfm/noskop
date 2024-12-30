@@ -1109,20 +1109,20 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@blueprintjs/colors@^5.1.4":
-  version "5.1.4"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/colors/-/colors-5.1.4.tgz#7d87b1ec5f140bc72b1e1cac075e813f97c6c6b2"
-  integrity sha512-OBRswl1v/AQXtx8PLP6PhZX+xY+Q/LP/eQATQi/ZUCrNbE0ZkMXQRS9PK/7ZVllnQqcACkC4x/JVthkzkLoG2g==
+"@blueprintjs/colors@^5.1.5":
+  version "5.1.5"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/colors/-/colors-5.1.5.tgz#b66654348008747e84c07a1a99c1e2461bf495bc"
+  integrity sha512-IUZvQLsQmfqumTTzeb5oQLnvskJcQYKcitzhDm5+iTWl42Jn5oyUqPDW96ubH/pfWoQGHzBp91ujq6KREl4GHQ==
   dependencies:
     tslib "~2.6.2"
 
-"@blueprintjs/core@^5.13.0", "@blueprintjs/core@^5.14.2", "@blueprintjs/core@^5.16.0":
-  version "5.16.0"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.16.0.tgz#3c01ec28999259ea25c1b3b91858fe5a66f91554"
-  integrity sha512-umWvCL9iHP01AO11fILCLK8ZT8mkOouSC+MFwk4cVx8HElxLoUFCf64lUFSQpQMPyNKICYJ4qBrN/hKsez11lQ==
+"@blueprintjs/core@^5.13.0", "@blueprintjs/core@^5.14.2", "@blueprintjs/core@^5.16.2":
+  version "5.16.2"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.16.2.tgz#3e044e28965ac3e87924a0eef2fe3b360d7a8c6a"
+  integrity sha512-iwsrJarNMN9gBxEYja+U/reYX4quqs84AkbGUsNMLXuqbNQ8Mwy5PqK2pdVu01ViMqmEeNNEX19BGfZnWIbLnA==
   dependencies:
-    "@blueprintjs/colors" "^5.1.4"
-    "@blueprintjs/icons" "^5.15.0"
+    "@blueprintjs/colors" "^5.1.5"
+    "@blueprintjs/icons" "^5.16.0"
     "@popperjs/core" "^2.11.8"
     classnames "^2.3.1"
     normalize.css "^8.0.1"
@@ -1132,7 +1132,7 @@
     tslib "~2.6.2"
     use-sync-external-store "^1.2.0"
 
-"@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.15.0", "@blueprintjs/icons@^5.16.0":
+"@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.16.0":
   version "5.16.0"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.16.0.tgz#e8b98878a4ff778c695b7891b22e2c2daa3d6826"
   integrity sha512-j3jZGHSeAvdQebkDT3axvwlOoddUZQgVTR90f9RCDtA+TyvhEX9gMCOQzr7LD/BG/F4aPoONf2MSsWGkpH+Zew==
