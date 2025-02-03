@@ -1116,13 +1116,13 @@
   dependencies:
     tslib "~2.6.2"
 
-"@blueprintjs/core@^5.13.0", "@blueprintjs/core@^5.14.2", "@blueprintjs/core@^5.16.2":
-  version "5.16.2"
-  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.16.2.tgz#3e044e28965ac3e87924a0eef2fe3b360d7a8c6a"
-  integrity sha512-iwsrJarNMN9gBxEYja+U/reYX4quqs84AkbGUsNMLXuqbNQ8Mwy5PqK2pdVu01ViMqmEeNNEX19BGfZnWIbLnA==
+"@blueprintjs/core@^5.13.0", "@blueprintjs/core@^5.14.2", "@blueprintjs/core@^5.16.4":
+  version "5.16.4"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/core/-/core-5.16.4.tgz#0b6ea64c32201bc9e52d04b564e88bf8771fabbb"
+  integrity sha512-jgy3UJNDWPBdNn8nf2pDgzSKDJABVG4i1OPrcFJlOQl117UWMJD28/hAtyBQG1e+/6AE0a678Ko1aBmK4aWp6Q==
   dependencies:
     "@blueprintjs/colors" "^5.1.5"
-    "@blueprintjs/icons" "^5.16.0"
+    "@blueprintjs/icons" "^5.17.1"
     "@popperjs/core" "^2.11.8"
     classnames "^2.3.1"
     normalize.css "^8.0.1"
@@ -1132,7 +1132,7 @@
     tslib "~2.6.2"
     use-sync-external-store "^1.2.0"
 
-"@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.16.0", "@blueprintjs/icons@^5.17.1":
+"@blueprintjs/icons@^5.14.0", "@blueprintjs/icons@^5.17.1":
   version "5.17.1"
   resolved "https://registry.yarnpkg.com/@blueprintjs/icons/-/icons-5.17.1.tgz#316ce7dd34cb88205e2d20d1c8411a765c530388"
   integrity sha512-jdwrfDb5N0KCKGFFaJn5KrQj0ZX1hqEXHor9ewsdrSgVGOzVCg9OJ/GYVjy85McHNhN9bYyYaH+8dxablEoYRA==
