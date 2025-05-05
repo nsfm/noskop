@@ -24,7 +24,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@babel/plugin-syntax-flow": "^7.26.0",
-    "@babel/plugin-transform-react-jsx": "^7.25.2",
+    "@babel/plugin-transform-react-jsx": "^7.27.1",
     "@testing-library/dom": ">=7.21.4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.2.1",
