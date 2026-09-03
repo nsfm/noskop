@@ -27,7 +27,7 @@
   "dependencies": {
     "@serialport/parser-delimiter": "^10.3.0",
     "bunyan": "^1.8.15",
-    "class-validator": "^0.13.2",
+    "class-validator": "^0.14.0",
     "color": "^4.2.3",
     "dualsense-ts": "5.0.4",
     "graphql": "15",
